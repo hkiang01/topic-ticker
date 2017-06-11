@@ -26,8 +26,8 @@ under the License.
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>Flink Quickstart Job</name>
-	<url>http://www.myorganization.org</url>
+	<name>Topic Ticker</name>
+	<url>https://github.com/hkiang01/topic-ticker</url>
 
 	<repositories>
 		<repository>
