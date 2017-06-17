@@ -122,6 +122,12 @@ under the License.
 			<artifactId>weka-stable</artifactId>
 			<version>3.8.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.data-artisans/flink-training-exercises -->
+		<dependency>
+			<groupId>com.data-artisans</groupId>
+			<artifactId>flink-training-exercises</artifactId>
+			<version>0.5</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>

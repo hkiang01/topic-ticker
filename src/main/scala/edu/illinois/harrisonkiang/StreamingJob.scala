@@ -18,6 +18,10 @@ package edu.illinois.harrisonkiang
  * limitations under the License.
  */
 
+import com.dataartisans.flinktraining.exercises.datastream_java.datatypes.TaxiRide
+import com.dataartisans.flinktraining.exercises.datastream_java.sources.TaxiRideSource
+import com.dataartisans.flinktraining.exercises.datastream_java.utils.GeoUtils
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
 
 /**
@@ -47,6 +51,17 @@ object StreamingJob {
     // set up the streaming execution environment
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+
+    // get the taxi ride data stream
+    val rides: DataStream[TaxiRide] = env.addSource(
+      new TaxiRideSource("./src/main/resources/nycTaxiRides.gz", 60, 600))
+
+    rides.filter(ride =>
+      GeoUtils.isInNYC(ride.startLon, ride.startLat) &&
+      GeoUtils.isInNYC(ride.endLon, ride.endLat)
+    ).print()
+
     /**
      * Here, you can start creating your execution plan for Flink.
      *
@@ -68,6 +83,6 @@ object StreamingJob {
      */
 
     // execute program
-    env.execute("Flink Streaming Scala API Skeleton")
+    env.execute("Taxi Ride Cleaning Exercise")
   }
 }

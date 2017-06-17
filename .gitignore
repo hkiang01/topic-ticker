@@ -23,3 +23,6 @@ project/plugins/project/
 
 # secrets
 src/main/resources/application.conf
+
+# data
+src/main/resources/*.gz

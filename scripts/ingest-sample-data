@@ -1,0 +1,1 @@
+wget http://dataartisans.github.io/flink-training/trainingData/nycTaxiRides.gz -P ./src/main/resources/
