@@ -20,3 +20,6 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
+
+# secrets
+src/main/resources/application.conf
