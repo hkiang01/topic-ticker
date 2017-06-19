@@ -122,6 +122,18 @@ under the License.
 			<artifactId>weka-stable</artifactId>
 			<version>3.8.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>0.10.2.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.flink/flink-connector-kafka-0.10_2.11 -->
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-connector-kafka-0.10_2.11</artifactId>
+			<version>1.3.0</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.data-artisans/flink-training-exercises -->
 		<dependency>
 			<groupId>com.data-artisans</groupId>
