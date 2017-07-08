@@ -85,7 +85,7 @@ object StreamingJob {
     val filteredRides = rides.filter(ride =>
       GeoUtils.isInNYC(ride.startLon, ride.startLat) && GeoUtils.isInNYC(ride.endLon, ride.endLat))
 
-    // https://dataartisans.github.io/flink-training/dataStream/3-handsOn.htmlq
+    // https://dataartisans.github.io/flink-training/dataStream/3-handsOn.html
 
     filteredRides.addSink(new FlinkKafkaProducer010[TaxiRide](
       "localhost:9092", // Kafka broker host:port
