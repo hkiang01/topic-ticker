@@ -6,15 +6,24 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 import com.google.gson.JsonParser
+import edu.illinois.harrisonkiang.Sentiment.Sentiment
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.{AutoDetectParser, ParseContext, Parser}
 import org.apache.tika.sax.BodyContentHandler
 
 import scalaj.http.{Http, HttpResponse}
 import scala.xml.{Elem, NodeSeq, XML}
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+
+import scala.collection.GenSeq
 
 case class TitleLinkDateTime(guid: String, title: String, link: String, localDateTime: LocalDateTime)
-case class ArticleText(guid: String, localDateTime: LocalDateTime, url: String, method: String, articleText: String)
+case class SentenceSentiment(sentence: String, sentiment: Sentiment)
+case class ArticleText(guid: String, localDateTime: LocalDateTime,
+                       sentenceSentiments: GenSeq[SentenceSentiment],
+                       url: String, method: String, articleText: String)
+case class TimeTagsSentimentScore(localDateTime: LocalDateTime, tags: GenSeq[String], sentimentScore: Double)
 
 /**
   * Created by harry on 7/8/17.
@@ -25,6 +34,8 @@ object GetXml extends App {
 
   private val TEXT_THRESHOLD = 150
 
+  private val logger: Logger = LogManager.getLogger(this.getClass.toString)
+
   /**
     * Uses juicer to grab the article body of an article
     * @param urlString the URL to plug into juicer API
@@ -33,6 +44,7 @@ object GetXml extends App {
     * WARNING: Does not work for all sites and document types, e.g., PDFs
     */
   private def getArticleTextWithJuicer(urlString: String): String = {
+    logger.info(s"Getting article text using juicer for urlString $urlString")
     try {
       val url = new URL(JUICER_PREPEND_URL + urlString)
       val bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()))
@@ -51,7 +63,8 @@ object GetXml extends App {
       jsonObject.get("article").getAsJsonObject.get("body").getAsString
     } catch {
       case (e: Exception) => {
-        e.printStackTrace()
+        logger.warn(s"Unable to get article text with juicer for url '$urlString'")
+//        e.printStackTrace()
         ""
       }
     }
@@ -64,7 +77,7 @@ object GetXml extends App {
     * @param bodyContentHandler the [[BodyContentHandler]]
     * @param metadata the [[Metadata]]
     * @return the resultant parsed string
-    * @see  <a href="https://tika.apache.org/1.14/examples.html#Parsing_using_the_Auto-Detect_Parser">https://tika.apache.org/1.14/examples.html#Parsing_using_the_Auto-Detect_Parser</a>
+    * @see  <a href="https://tika.apache.org/1.15/examples.html#Parsing_using_the_Auto-Detect_Parser">https://tika.apache.org/1.14/examples.html#Parsing_using_the_Auto-Detect_Parser</a>
     */
   private def tikaParserHelper(urlString: String, parser: Parser, bodyContentHandler: BodyContentHandler, metadata: Metadata, parseContext: ParseContext): String = {
     try {
@@ -75,13 +88,15 @@ object GetXml extends App {
       bodyContentHandler.toString
     } catch {
       case e: Exception => {
-        e.printStackTrace()
+        logger.warn(s"Unable to get article text with tika for url '$urlString'")
+//        e.printStackTrace()
         ""
       }
     }
   }
 
   private def getArticleTextWithTikaAutoDetectParser(urlString: String): String = {
+    logger.info(s"Getting article text using Tika Auto-Detect Parser for urlString $urlString")
     tikaParserHelper(urlString, new AutoDetectParser, new BodyContentHandler, new Metadata, new ParseContext)
   }
 
@@ -117,9 +132,13 @@ object GetXml extends App {
     * With Juicer, else with [[AutoDetectParser]]
     */
   private def getArticleTextAndMethod(urlString: String): (String, String) = {
+    logger.debug(s"Getting article text and method for urlString $urlString")
     val articleTextJuicer = getArticleTextWithJuicer(urlString)
     if(articleTextJuicer.length < TEXT_THRESHOLD) {
       val articleTextAutoDetectParser = getArticleTextWithTikaAutoDetectParser(urlString)
+      if(articleTextAutoDetectParser.length < TEXT_THRESHOLD) {
+        logger.error(s"Unable to get article text for urlString $urlString (length ${Math.max(articleTextJuicer.length, articleTextAutoDetectParser.length)})")
+      }
       ("Apache Tika Auto-Detect Parser", articleTextAutoDetectParser)
     } else {
       ("juicer", articleTextJuicer)
@@ -135,9 +154,17 @@ object GetXml extends App {
     val url = elem.link
     val methodAndArticleText = getArticleTextAndMethod(url)
     val method = methodAndArticleText._1
-    val cleansedText = methodAndArticleText._2.replaceAll("\\s+", " ")
-    ArticleText(elem.guid, elem.localDateTime, elem.link, method, cleansedText)
-  })
+    val cleansedArticleText = methodAndArticleText._2.replaceAll("\\s+", " ")
+    if(cleansedArticleText.nonEmpty) {
+      val sentenceSentiments = {
+        val results = SentimentAnalyzer.extractSentiments(cleansedArticleText)
+        results.map(result => SentenceSentiment(result._1, result._2))
+      }
+      ArticleText(elem.guid, elem.localDateTime, sentenceSentiments, elem.link, method, cleansedArticleText)
+    } else {
+      null
+    }
+  }).filter(_ != null)
 
   articleText.foreach(println)
 }
