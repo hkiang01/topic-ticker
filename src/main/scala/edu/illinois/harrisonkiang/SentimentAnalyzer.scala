@@ -40,12 +40,17 @@ object SentimentAnalyzer {
   }
 
   def extractSentiments(text: String): List[(String, Sentiment)] = {
+    logger.debug(s"running extractSentiments on ${text.take(100)}...")
+    val t0 = System.nanoTime()
     val annotation: Annotation = pipeline.process(text)
     val sentences = annotation.get(classOf[CoreAnnotations.SentencesAnnotation])
-    sentences
+    val results = sentences
       .map(sentence => (sentence, sentence.get(classOf[SentimentCoreAnnotations.SentimentAnnotatedTree])))
       .map { case (sentence, tree) => (sentence.toString,Sentiment.toSentiment(RNNCoreAnnotations.getPredictedClass(tree))) }
       .toList
+    val t1 = System.nanoTime()
+    logger.debug(s"${t1 - t0} ns elapsed for extractSentiments on ${text.take(100)}")
+    results
   }
 
 }

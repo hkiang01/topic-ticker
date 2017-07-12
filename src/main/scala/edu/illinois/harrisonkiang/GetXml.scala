@@ -126,27 +126,37 @@ object GetXml extends App {
     val timeLocalDateTime = LocalDateTime.parse(timeString, DateTimeFormatter.RFC_1123_DATE_TIME)
     TitleLinkDateTime(guid, title, link, timeLocalDateTime)
   })
-//  titleLinkPubDateText.foreach(println)
+  titleLinkPubDateText.map(_.link).foreach(println)
+
+  def cleanText(dirtyText: String): String = dirtyText.replaceAll("\\s+", " ")
 
   /**
     * With Juicer, else with [[AutoDetectParser]]
     */
   private def getArticleTextAndMethod(urlString: String): (String, String) = {
     logger.debug(s"Getting article text and method for urlString $urlString")
-    val articleTextJuicer = getArticleTextWithJuicer(urlString)
-    if(articleTextJuicer.length < TEXT_THRESHOLD) {
-      val articleTextAutoDetectParser = getArticleTextWithTikaAutoDetectParser(urlString)
-      if(articleTextAutoDetectParser.length < TEXT_THRESHOLD) {
+    val t0 = System.nanoTime()
+    val articleTextAutoDetectParser = cleanText(getArticleTextWithTikaAutoDetectParser(urlString))
+    val result = if(articleTextAutoDetectParser.length < TEXT_THRESHOLD) {
+      val articleTextJuicer = cleanText(getArticleTextWithJuicer(urlString))
+      if(articleTextJuicer.length < TEXT_THRESHOLD) {
         logger.error(s"Unable to get article text for urlString $urlString (length ${Math.max(articleTextJuicer.length, articleTextAutoDetectParser.length)})")
+        ("", "")
+      } else {
+        logger.debug(s"Got article text and method for urlString $urlString")
+        ("juicer", articleTextJuicer)
       }
-      ("Apache Tika Auto-Detect Parser", articleTextAutoDetectParser)
     } else {
-      ("juicer", articleTextJuicer)
+      ("Apache Tika Auto-Detect Parser", articleTextAutoDetectParser)
     }
+    val t1 = System.nanoTime()
+    logger.debug(s"${t1 - t0} ns elapsed for getting article text and method for urlString $urlString: ${result._2.take(100)}")
+    result
   }
 
   def getArticleText(urlString: String): String = {
-    getArticleTextAndMethod(urlString)._2
+    val result = getArticleTextAndMethod(urlString)._2
+    if(result == null) "" else result
   }
 
   val articleText = titleLinkPubDateText.par.map(elem => {
@@ -154,7 +164,7 @@ object GetXml extends App {
     val url = elem.link
     val methodAndArticleText = getArticleTextAndMethod(url)
     val method = methodAndArticleText._1
-    val cleansedArticleText = methodAndArticleText._2.replaceAll("\\s+", " ")
+    val cleansedArticleText = methodAndArticleText._2
     if(cleansedArticleText.nonEmpty) {
       val sentenceSentiments = {
         val results = SentimentAnalyzer.extractSentiments(cleansedArticleText)
@@ -166,5 +176,4 @@ object GetXml extends App {
     }
   }).filter(_ != null)
 
-  articleText.foreach(println)
 }
