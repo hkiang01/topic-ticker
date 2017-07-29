@@ -1,13 +1,11 @@
-import java.sql.{DriverManager, ResultSet}
 import java.text.SimpleDateFormat
 
 import org.scalatest.{FunSpec, Matchers}
-import java.util.{Calendar, Properties}
+import java.util.{Date, Properties}
 import java.sql.DriverManager
-import com.typesafe.config.ConfigFactory
 
 /**
-  * Created by harrison.kiang on 7/10/17.
+  * Created by harrison.kiang on 7/29/17.
   * @see <a href="https://stackoverflow.com/questions/3194589/how-can-i-connect-to-a-postgresql-database-in-scala"></a>
   */
 class PostgresDBConnectionSpec extends FunSpec with Matchers {
@@ -18,29 +16,34 @@ class PostgresDBConnectionSpec extends FunSpec with Matchers {
     val url = s"jdbc:postgresql://localhost/$dbName"
 
     val props = new Properties()
-    props.setProperty("user", "harry")
-    props.setProperty("password", "mypassword")
+    props.setProperty("user", "topictickeruser")
+    props.setProperty("password", "topictickerpassword")
     props.setProperty("ssl", "true")
 
-    val conn = DriverManager.getConnection(url, props)
+    val connection = DriverManager.getConnection(url, props)
 
     try {
 
-      val now: Calendar = Calendar.getInstance()
       val currentDateFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-      val currentDate = currentDateFormat.format(now)
+      val currentDate = currentDateFormat.format(new Date)
 
-      val stm = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
-      val rs = stm.executeQuery("CREATE current_date")
+      val statement = connection.createStatement()
+      val rs = statement.executeQuery("SELECT current_date")
+      rs.next()
+      val resultSetDate = rs.getString("date")
 
-      rs should be (currentDate)
+
+      it("jdbc driver should connecto to topictickerdb as topictickeruser and execute a simple function") {
+        resultSetDate should be (currentDate)
+      }
+
     } catch {
       case e: Exception => {
         e.printStackTrace()
         fail()
       }
     } finally {
-      conn.close()
+      connection.close()
     }
   }
 }

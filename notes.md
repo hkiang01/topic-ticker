@@ -1,3 +1,7 @@
+### Create postgres database
+Note: This is tested in Ubuntu 17.04 with admin rights
+
+Install [postgres](https://www.postgresql.org/download/)
 
 Switch to `postgres` user
 
@@ -11,13 +15,12 @@ You should see something like this
 $ postgres@my-machine:
 ```
 
-Create a role with a user and password.
-I'm going to create the user `harry` with password `mypassword`.
+Create the user `topictickeruser` with password `topictickerpassword`.
 
 ```
 $ psql -q -U postgres postgres
-postgres=# CREATE user harry;
-postgres=# ALTER USER harry PASSWORD 'mypassword';
+postgres=# CREATE user topictickeruser;
+postgres=# ALTER USER topictickeruser PASSWORD 'topictickerpassword';
 postgres=# \q
 ```
 
@@ -28,22 +31,21 @@ You should be back at the terminal as your user
 myuser@mymachine:
 ```
 
-Create the database `topictickerdb` with the user you created as the owner.
-I'm going to do so with the owner as `harry`
+Create the database `topictickerdb` with the `topictickeruser` as the owner.
 
 ```
-$ sudo -u postgres createdb -O harry topictickerdb
+$ sudo -u postgres createdb -O topictickeruser topictickerdb
 ```
 
-You have now created a postgres database called topictickerdb with `user` as the owner.
-(In my case, I have created a postgres databse called topictickerdb with `harry` as the owner)
+You have now created a postgres database called topictickerdb with `topictickeruser` as the owner.
 
-To undo what you have done:
+### To undo what you have done:
 
 ```
 $ dropdb topictickerdb
 $ sudo su - postgres
 ```
+
 You should see something like this
 
 ```
@@ -54,5 +56,5 @@ Drop the user
 
 ```
 psql -q -U postgres postgres
-postgres=# DROP USER harry;
+postgres=# DROP USER topictickeruser;
 ```
