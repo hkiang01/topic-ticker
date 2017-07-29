@@ -7,15 +7,13 @@ import java.time.format.DateTimeFormatter
 
 import com.google.gson.JsonParser
 import edu.illinois.harrisonkiang.Sentiment.Sentiment
+import org.apache.log4j.{LogManager, Logger}
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.{AutoDetectParser, ParseContext, Parser}
 import org.apache.tika.sax.BodyContentHandler
 
 import scalaj.http.{Http, HttpResponse}
 import scala.xml.{Elem, NodeSeq, XML}
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
-
 import scala.collection.GenSeq
 
 case class TitleLinkDateTime(guid: String, title: String, link: String, localDateTime: LocalDateTime)
@@ -73,7 +71,7 @@ object GetXml extends App {
   /**
     * A helper for using Apache Tika's Parser API
     * @param urlString the url to parse
-    * @param parser the [[org.apache.tika.parser.AbstractParser]]
+    * @param parser the [[org.apache.tika.parser                                        .AbstractParser]]
     * @param bodyContentHandler the [[BodyContentHandler]]
     * @param metadata the [[Metadata]]
     * @return the resultant parsed string
