@@ -3,6 +3,7 @@ package edu.illinois.harrisonkiang
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import edu.illinois.harrisonkiang.feeds.rss.GoogleNews
 import edu.illinois.harrisonkiang.sentiment.Sentiment.Sentiment
 import edu.illinois.harrisonkiang.sentiment.SentimentAnalyzer
 import edu.illinois.harrisonkiang.textextraction._
@@ -28,32 +29,9 @@ object GetXml extends App with TopicTickerLogger {
   private val TEXT_THRESHOLD = 150
 
   // get the xml content using scalaj-http
-  val response: HttpResponse[String] = Http("https://news.google.com/news/rss/?ned=us&hl=en")
-    .timeout(connTimeoutMs = 2000, readTimeoutMs = 5000)
-    .asString
+  val googleNews = new GoogleNews
 
-  val xmlString: String = response.body
-
-  // convert the 'String' to a 'scala.xml.Elem'
-  val xml: Elem = XML.loadString(xmlString)
-
-  val items: NodeSeq = xml \\ "item"
-  val titleLinkPubDateNodes = for {
-    i <- items
-    guid <- i \ "guid"
-    title <- i \ "title"
-    link <- i \ "link"
-    pubDate <- i \ "pubDate"
-  } yield (guid, title, link, pubDate)
-  val titleLinkPubDateText = titleLinkPubDateNodes.map( n => {
-    val guid = n._1.text
-    val title = n._2.text
-    val link = n._3.text
-    val timeString = n._4.text
-    val timeLocalDateTime = LocalDateTime.parse(timeString, DateTimeFormatter.RFC_1123_DATE_TIME)
-    TitleLinkDateTime(guid, title, link, timeLocalDateTime)
-  })
-  titleLinkPubDateText.map(_.link).foreach(println)
+  val titleLinkPubDateText = googleNews.getData
 
   def cleanText(dirtyText: String): String = dirtyText.replaceAll("\\s+", " ")
 
