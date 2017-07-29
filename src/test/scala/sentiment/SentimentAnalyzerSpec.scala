@@ -1,4 +1,6 @@
-import edu.illinois.harrisonkiang.{Sentiment, SentimentAnalyzer}
+package sentiment
+
+import edu.illinois.harrisonkiang.sentiment.{Sentiment, SentimentAnalyzer}
 import org.scalatest.{FunSpec, Matchers}
 
 /**

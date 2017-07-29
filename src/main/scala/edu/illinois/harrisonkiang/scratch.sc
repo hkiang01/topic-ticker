@@ -1,7 +1,7 @@
 import java.io.{FileReader, IOException, StringReader}
 import java.util
 
-import edu.illinois.harrisonkiang.SentimentAnalyzer
+import edu.illinois.harrisonkiang.sentiment.SentimentAnalyzer
 import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.ling.HasWord
 import edu.stanford.nlp.process.CoreLabelTokenFactory

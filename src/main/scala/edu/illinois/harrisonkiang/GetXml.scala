@@ -1,16 +1,13 @@
 package edu.illinois.harrisonkiang
 
-import java.io.{BufferedReader, InputStreamReader}
-import java.net.URL
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-import com.google.gson.JsonParser
-import edu.illinois.harrisonkiang.Sentiment.Sentiment
-import org.apache.log4j.{LogManager, Logger}
-import org.apache.tika.metadata.Metadata
-import org.apache.tika.parser.{AutoDetectParser, ParseContext, Parser}
-import org.apache.tika.sax.BodyContentHandler
+import edu.illinois.harrisonkiang.sentiment.Sentiment.Sentiment
+import edu.illinois.harrisonkiang.sentiment.SentimentAnalyzer
+import edu.illinois.harrisonkiang.textextraction._
+import edu.illinois.harrisonkiang.util.TopicTickerLogger
+import org.apache.tika.parser.AutoDetectParser
 
 import scalaj.http.{Http, HttpResponse}
 import scala.xml.{Elem, NodeSeq, XML}
@@ -26,77 +23,9 @@ case class TimeTagsSentimentScore(localDateTime: LocalDateTime, tags: GenSeq[Str
 /**
   * Created by harry on 7/8/17.
   */
-object GetXml extends App {
-
-  private val JUICER_PREPEND_URL = "https://juicer.herokuapp.com/api/article?url="
+object GetXml extends App with TopicTickerLogger {
 
   private val TEXT_THRESHOLD = 150
-
-  private val logger: Logger = LogManager.getLogger(this.getClass.toString)
-
-  /**
-    * Uses juicer to grab the article body of an article
-    * @param urlString the URL to plug into juicer API
-    * @return the body result of the juicer API call
-    * @see <a href="https://juicer.herokuapp.com/">juicer</a>
-    * WARNING: Does not work for all sites and document types, e.g., PDFs
-    */
-  private def getArticleTextWithJuicer(urlString: String): String = {
-    logger.info(s"Getting article text using juicer for urlString $urlString")
-    try {
-      val url = new URL(JUICER_PREPEND_URL + urlString)
-      val bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()))
-      val stringBuilder = new StringBuilder
-      var line = ""
-      line = bufferedReader.readLine()
-      while(line != null) {
-        stringBuilder.append(line)
-        line = bufferedReader.readLine()
-      }
-      bufferedReader.close()
-      val result = stringBuilder.toString()
-      val jsonParser = new JsonParser
-      val element = jsonParser.parse(result)
-      val jsonObject = element.getAsJsonObject
-      jsonObject.get("article").getAsJsonObject.get("body").getAsString
-    } catch {
-      case (e: Exception) => {
-        logger.warn(s"Unable to get article text with juicer for url '$urlString'")
-//        e.printStackTrace()
-        ""
-      }
-    }
-  }
-
-  /**
-    * A helper for using Apache Tika's Parser API
-    * @param urlString the url to parse
-    * @param parser the [[org.apache.tika.parser                                        .AbstractParser]]
-    * @param bodyContentHandler the [[BodyContentHandler]]
-    * @param metadata the [[Metadata]]
-    * @return the resultant parsed string
-    * @see  <a href="https://tika.apache.org/1.15/examples.html#Parsing_using_the_Auto-Detect_Parser">https://tika.apache.org/1.14/examples.html#Parsing_using_the_Auto-Detect_Parser</a>
-    */
-  private def tikaParserHelper(urlString: String, parser: Parser, bodyContentHandler: BodyContentHandler, metadata: Metadata, parseContext: ParseContext): String = {
-    try {
-      val url = new URL(urlString)
-      val inputStream = url.openStream()
-      parser.parse(inputStream, bodyContentHandler, metadata, parseContext)
-      inputStream.close()
-      bodyContentHandler.toString
-    } catch {
-      case e: Exception => {
-        logger.warn(s"Unable to get article text with tika for url '$urlString'")
-//        e.printStackTrace()
-        ""
-      }
-    }
-  }
-
-  private def getArticleTextWithTikaAutoDetectParser(urlString: String): String = {
-    logger.info(s"Getting article text using Tika Auto-Detect Parser for urlString $urlString")
-    tikaParserHelper(urlString, new AutoDetectParser, new BodyContentHandler, new Metadata, new ParseContext)
-  }
 
   // get the xml content using scalaj-http
   val response: HttpResponse[String] = Http("https://news.google.com/news/rss/?ned=us&hl=en")
@@ -134,9 +63,9 @@ object GetXml extends App {
   private def getArticleTextAndMethod(urlString: String): (String, String) = {
     logger.debug(s"Getting article text and method for urlString $urlString")
     val t0 = System.nanoTime()
-    val articleTextAutoDetectParser = cleanText(getArticleTextWithTikaAutoDetectParser(urlString))
+    val articleTextAutoDetectParser = cleanText(Tika.getArticleTextWithTikaAutoDetectParser(urlString))
     val result = if(articleTextAutoDetectParser.length < TEXT_THRESHOLD) {
-      val articleTextJuicer = cleanText(getArticleTextWithJuicer(urlString))
+      val articleTextJuicer = cleanText(Juicer.getArticleTextWithJuicer(urlString))
       if(articleTextJuicer.length < TEXT_THRESHOLD) {
         logger.error(s"Unable to get article text for urlString $urlString (length ${Math.max(articleTextJuicer.length, articleTextAutoDetectParser.length)})")
         ("", "")

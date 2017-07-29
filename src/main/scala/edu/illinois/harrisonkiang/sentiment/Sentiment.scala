@@ -1,4 +1,4 @@
-package edu.illinois.harrisonkiang
+package edu.illinois.harrisonkiang.sentiment
 
 /**
   * Created by harrison.kiang on 7/10/17.
