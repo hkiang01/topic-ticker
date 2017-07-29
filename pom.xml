@@ -103,6 +103,12 @@ under the License.
 			<version>3.0.3</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml_2.12/ -->
+		<dependency>
+			<groupId>org.scala-lang.modules</groupId>
+			<artifactId>scala-xml_2.12</artifactId>
+			<version>1.0.6</version>
+		</dependency>
 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-corenlp</artifactId>

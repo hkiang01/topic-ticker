@@ -10,8 +10,8 @@ import edu.illinois.harrisonkiang.util.TopicTickerLogger
 import org.apache.tika.parser.AutoDetectParser
 
 import scalaj.http.{Http, HttpResponse}
-import scala.xml.{Elem, NodeSeq, XML}
 import scala.collection.GenSeq
+import scala.xml.{Elem, NodeSeq, XML}
 
 case class TitleLinkDateTime(guid: String, title: String, link: String, localDateTime: LocalDateTime)
 case class SentenceSentiment(sentence: String, sentiment: Sentiment)
