@@ -48,8 +48,8 @@ under the License.
 		<flink.version>1.3.1</flink.version>
 		<slf4j.version>1.7.25</slf4j.version>
 		<log4j.version>1.2.17</log4j.version>
-		<scala.binary.version>2.11</scala.binary.version>
-		<scala.lang.version>${scala.binary.version}.7</scala.lang.version>
+		<scala.binary.version>2.12</scala.binary.version>
+		<scala.lang.version>${scala.binary.version}.3</scala.lang.version>
 
 	</properties>
 
@@ -90,13 +90,13 @@ under the License.
 			<artifactId>scala-library</artifactId>
 			<version>${scala.lang.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.scalactic/scalactic_2.11 -->
+		<!-- https://mvnrepository.com/artifact/org.scalactic/scalactic_2.12 -->
 		<dependency>
 			<groupId>org.scalactic</groupId>
 			<artifactId>scalactic_${scala.binary.version}</artifactId>
 			<version>3.0.3</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.scalatest/scalatest_2.11 -->
+		<!-- https://mvnrepository.com/artifact/org.scalatest/scalatest_2.12 -->
 		<dependency>
 			<groupId>org.scalatest</groupId>
 			<artifactId>scalatest_${scala.binary.version}</artifactId>
