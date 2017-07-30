@@ -22,7 +22,7 @@ class GoogleNews extends Feed {
     SchemaCol("guid", s"char($guidLength)"),
     SchemaCol("title", "text"),
     SchemaCol("link", "text"),
-    SchemaCol("pubDate", "timestamp with timezone")
+    SchemaCol("pubDate", "timestamp with time zone")
   ))
 
   override def createTableStatement: String = super.createTableStatement

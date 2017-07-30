@@ -19,10 +19,10 @@ trait Feed {
   def connection: Connection = PostgresDBConnection.createConnection()
 
   def createTableStatement: String = {
-    s"CREATE TABLE ${tableName.toUpperCase()} ("+
+    s"CREATE TABLE ${tableName.toLowerCase()} ("+
       schema.schemaCols.map(schemaCol => {
-        s"${schemaCol.colName} ${schemaCol.colType.toUpperCase()}"
-      }).mkString(", ") + s", PRIMARY KEY ($primaryKeyCol))"
+        s"${schemaCol.colName.toLowerCase()} ${schemaCol.colType.toUpperCase()}"
+      }).mkString(", ") + s", PRIMARY KEY ( $primaryKeyCol ))"
   }
 
   def createTable(): Unit = {
