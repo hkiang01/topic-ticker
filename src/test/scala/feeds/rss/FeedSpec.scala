@@ -9,12 +9,14 @@ class FeedSpec extends FunSpec with Matchers {
   describe("single feed connection of a given type") {
     class SampleFeed1 extends Feed {
       override val tableName: String = "samplefeed1"
-      override val primaryKeyCol: String = ""
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
+      override val uniqueCol: String = ""
+      override def updateTableWithFreshData(): Unit = {}
+      override def insertRecords(): Unit = {}
     }
 
     val sampleFeed1 = new SampleFeed1
@@ -35,22 +37,26 @@ class FeedSpec extends FunSpec with Matchers {
   describe("multiple feed connections of different types") {
     class SampleFeed1 extends Feed {
       override val tableName: String = "samplefeed1"
-      override val primaryKeyCol: String = ""
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
+      override val uniqueCol: String = ""
+      override def updateTableWithFreshData(): Unit = {}
+      override def insertRecords(): Unit = {}
     }
 
     class SampleFeed2 extends Feed {
       override val tableName: String = "samplefeed2"
-      override val primaryKeyCol: String = ""
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col2", "type2")
       ))
+      override val uniqueCol: String = ""
+      override def updateTableWithFreshData(): Unit = {}
+      override def insertRecords(): Unit = {}
     }
 
     val sampleFeed1 = new SampleFeed1
@@ -78,12 +84,14 @@ class FeedSpec extends FunSpec with Matchers {
   describe("multiple feed instances of same type") {
     class SampleFeed1 extends Feed {
       override val tableName: String = "samplefeed1"
-      override val primaryKeyCol: String = ""
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
+      override val uniqueCol: String = ""
+      override def updateTableWithFreshData(): Unit = {}
+      override def insertRecords(): Unit = {}
     }
 
     val sampleFeed1 = new SampleFeed1

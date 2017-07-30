@@ -14,7 +14,7 @@ case class Schema(schemaCols: Array[SchemaCol])
 trait Feed {
   val tableName: String
   val schema: Schema
-  val primaryKeyCol: String
+  val uniqueCol: String
 
   def connection: Connection = PostgresDBConnection.createConnection()
 
@@ -22,13 +22,39 @@ trait Feed {
     s"CREATE TABLE ${tableName.toLowerCase()} ("+
       schema.schemaCols.map(schemaCol => {
         s"${schemaCol.colName.toLowerCase()} ${schemaCol.colType.toUpperCase()}"
-      }).mkString(", ") + s", PRIMARY KEY ( $primaryKeyCol ))"
+      }).mkString(", ") + s", UNIQUE ($uniqueCol) )"
   }
 
   def createTable(): Unit = {
     val stmt = connection.createStatement()
     stmt.execute(createTableStatement)
   }
+
+  def tableExists: Boolean = {
+    val dbm = connection.getMetaData
+    val rs = dbm.getTables(null, null, tableName, null)
+    rs.next()
+  }
+
+  def ensureTableExists(): Unit = {
+    if(!tableExists) {
+      createTable()
+    }
+  }
+
+  def getRecords: java.sql.ResultSet = {
+    val stmt = connection.createStatement()
+    val sql = s"SELECT * FROM $tableName"
+    stmt.executeQuery(sql)
+  }
+
+  def queryHeaderForInsertRecords: String = s"INSERT INTO ${tableName.toLowerCase()} " +
+    s"(" + schema.schemaCols.map(_.colName).mkString(", ") + ") VALUES " +
+    "(" + ("?," * schema.schemaCols.length).dropRight(1) + ")"
+
+  def insertRecords(): Unit
+
+  def updateTableWithFreshData(): Unit
 
   def dropTableStatement: String = s"DROP TABLE ${tableName.toUpperCase()}"
   def dropTable(): Unit = {

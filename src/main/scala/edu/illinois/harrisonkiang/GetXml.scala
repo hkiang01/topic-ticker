@@ -31,7 +31,10 @@ object GetXml extends App with TopicTickerLogger {
   // get the xml content using scalaj-http
   val googleNews = new GoogleNews
 
-  val titleLinkPubDateText = googleNews.getData
+  val titleLinkPubDateText = {
+    googleNews.updateData()
+    googleNews.data
+  }
 
   def cleanText(dirtyText: String): String = dirtyText.replaceAll("\\s+", " ")
 
