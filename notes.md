@@ -1,67 +1,23 @@
-### Create postgres database
-Note: This is tested in Ubuntu 17.04 with admin rights
+# topic-ticker
 
-Install [postgres](https://www.postgresql.org/download/)
+## Getting started
+In IntelliJ, open `pom.xml`. A project will be created.
 
-Switch to `postgres` user
+## Secrets
+Store API keys in `/src/main/resources/application.conf` (see `sample-application.conf`)
 
-```
-$ sudo su - postgres
-```
+Supported API sources:
+* Google News API
 
-You should see something like this
-
-```
-$ postgres@my-machine:
-```
-
-Create the user `topictickeruser` with password `topictickerpassword`.
+## Download sample data
 
 ```
-$ psql -q -U postgres postgres
-postgres=# CREATE user topictickeruser;
-postgres=# ALTER USER topictickeruser PASSWORD 'topictickerpassword';
-postgres=# CREATE DATABASE topictickedb OWNER topictickeruser;
+chmod +x scripts/ingest-sample-data
+./scripts/ingest-sample-data
 ```
 
-You have now created a postgres database called topictickerdb with `topictickeruser` as the owner.
+Supported sample data:
 
-### Verification
-
-```
-\l
-```
-
-You should see something like this
-
-```
-                                        List of databases
-      Name      |      Owner      | Encoding |   Collate   |    Ctype    |   Access privileges   
-----------------+-----------------+----------+-------------+-------------+-----------------------
- postgres       | postgres        | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
- template0      | postgres        | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
-                |                 |          |             |             | postgres=CTc/postgres
- template1      | postgres        | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
-                |                 |          |             |             | postgres=CTc/postgres
- topictickerdb  | topictickeruser | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
-(4 rows)
-
-```
-
-Note that the name of the database of interest is `topictickerdb` and the owner is `topictickeruser`.
-
-### To undo what you have done:
-
-```
-postgres=# DROP DATABASE topictickerdb;
-postgres=# DROP USER topictickeruser;
-```
-
-### Log out of postgres
-
-```
-postgres=# \q
-postgres@my-machine: 
-```
-
-Press `Ctrl+D` on your machine. You should be at your machine's default terminal.
+* [New York City Taxi & Limousine Commission](http://www.nyc.gov/html/tlc/html/home/home.shtml)
+    * Public [data set](https://uofi.app.box.com/NYCtaxidata) about taxi rides in New York City from 2009-2015.
+    * More information:https://dataartisans.github.io/flink-training/exercises/taxiData.html

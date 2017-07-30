@@ -1,23 +1,67 @@
-# topic-ticker
+### Create postgres database
+Note: This is tested in Ubuntu 17.04 with admin rights
 
-## Getting started
-In IntelliJ, open `pom.xml`. A project will be created.
+Install [postgres](https://www.postgresql.org/download/)
 
-## Secrets
-Store API keys in `/src/main/resources/application.conf` (see `sample-application.conf`)
-
-Supported API sources:
-* Google News API
-
-## Download sample data
+Switch to `postgres` user
 
 ```
-chmod +x scripts/ingest-sample-data
-./scripts/ingest-sample-data
+$ sudo su - postgres
 ```
 
-Supported sample data:
+You should see something like this
 
-* [New York City Taxi & Limousine Commission](http://www.nyc.gov/html/tlc/html/home/home.shtml)
-    * Public [data set](https://uofi.app.box.com/NYCtaxidata) about taxi rides in New York City from 2009-2015.
-    * More information:https://dataartisans.github.io/flink-training/exercises/taxiData.html
+```
+$ postgres@my-machine:
+```
+
+Create the user `topictickeruser` with password `topictickerpassword`.
+
+```
+$ psql -q -U postgres postgres
+postgres=# CREATE user topictickeruser;
+postgres=# ALTER USER topictickeruser PASSWORD 'topictickerpassword';
+postgres=# CREATE DATABASE topictickedb OWNER topictickeruser;
+```
+
+You have now created a postgres database called topictickerdb with `topictickeruser` as the owner.
+
+### Verification
+
+```
+\l
+```
+
+You should see something like this
+
+```
+                                        List of databases
+      Name      |      Owner      | Encoding |   Collate   |    Ctype    |   Access privileges   
+----------------+-----------------+----------+-------------+-------------+-----------------------
+ postgres       | postgres        | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ template0      | postgres        | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                |                 |          |             |             | postgres=CTc/postgres
+ template1      | postgres        | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                |                 |          |             |             | postgres=CTc/postgres
+ topictickerdb  | topictickeruser | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+(4 rows)
+
+```
+
+Note that the name of the database of interest is `topictickerdb` and the owner is `topictickeruser`.
+
+### To undo what you have done:
+
+```
+postgres=# DROP DATABASE topictickerdb;
+postgres=# DROP USER topictickeruser;
+```
+
+### Log out of postgres
+
+```
+postgres=# \q
+postgres@my-machine: 
+```
+
+Press `Ctrl+D` on your machine. You should be at your machine's default terminal.
