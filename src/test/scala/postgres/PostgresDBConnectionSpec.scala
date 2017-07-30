@@ -1,6 +1,6 @@
 package postgres
 
-import java.sql.Connection
+import java.sql.{Connection, Statement}
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -40,6 +40,78 @@ class PostgresDBConnectionSpec extends FunSpec with Matchers {
       }
     } finally {
       connection.close()
+    }
+  }
+
+  describe("creation and deletion of a test table") {
+    val testTableName = "testregistrationdb"
+    var conn: Connection = null
+    var stmt: Statement = null
+
+    try {
+      conn = PostgresDBConnection.createConnection()
+      stmt = conn.createStatement
+      val sql = s"CREATE TABLE $testTableName " +
+        "(id INTEGER not NULL, " +
+        " first VARCHAR(255), " +
+        " last VARCHAR(255), " +
+        " age INTEGER, " +
+        " PRIMARY KEY ( id ))"
+      stmt.executeUpdate(sql)
+
+      val dbm = conn.getMetaData
+      val rs = dbm.getTables(null, null, testTableName, null)
+      it("table should be found") {
+        rs.next() should be (true)
+      }
+    } catch {
+      case e: Exception =>
+        e.printStackTrace()
+        fail()
+    } finally {
+      try
+          if (stmt != null) conn.close()
+      catch {
+        case e: Exception => e.printStackTrace()
+      }
+
+      try {
+        if (conn != null) conn.close()
+      }
+      catch {
+        case e: Exception =>
+          e.printStackTrace()
+      }
+    }
+
+    try {
+      conn = PostgresDBConnection.createConnection()
+      stmt = conn.createStatement
+      val sql = s"DROP TABLE $testTableName "
+      stmt.executeUpdate(sql)
+      val dbm = conn.getMetaData
+      val rs = dbm.getTables(null, null, testTableName, null)
+      it("table should not be found") {
+        rs.next() should be (false)
+      }
+    } catch {
+      case e: Exception => {
+        e.printStackTrace()
+        fail()
+      }
+    } finally {
+      try
+          if (stmt != null) conn.close()
+      catch {
+        case e: Exception => e.printStackTrace()
+      }
+      try {
+        if (conn != null) conn.close()
+      }
+      catch {
+        case e: Exception =>
+          e.printStackTrace()
+      }
     }
   }
 }
