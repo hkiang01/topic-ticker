@@ -17,7 +17,6 @@ object PostgresDBConnection {
     props.setProperty("user", user)
     props.setProperty("password", password)
     props.setProperty("ssl", "true")
-
     DriverManager.getConnection(fullUrl, props)
   }
 

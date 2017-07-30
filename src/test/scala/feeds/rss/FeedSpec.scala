@@ -1,5 +1,6 @@
 package feeds.rss
 
+import edu.illinois.harrisonkiang.feeds.rss.GoogleNews
 import edu.illinois.harrisonkiang.feeds.{Feed, Schema, SchemaCol}
 import org.scalatest.{FunSpec, Matchers}
 
@@ -7,6 +8,10 @@ class FeedSpec extends FunSpec with Matchers {
 
   describe("single feed connection of a given type") {
     class SampleFeed1 extends Feed {
+      override val tableName: String = "samplefeed1"
+      override val primaryKeyCol: String = ""
+      override val createTableStatement: String = ""
+      override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
@@ -29,12 +34,20 @@ class FeedSpec extends FunSpec with Matchers {
 
   describe("multiple feed connections of different types") {
     class SampleFeed1 extends Feed {
+      override val tableName: String = "samplefeed1"
+      override val primaryKeyCol: String = ""
+      override val createTableStatement: String = ""
+      override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
     }
 
     class SampleFeed2 extends Feed {
+      override val tableName: String = "samplefeed2"
+      override val primaryKeyCol: String = ""
+      override val createTableStatement: String = ""
+      override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col2", "type2")
       ))
@@ -64,6 +77,10 @@ class FeedSpec extends FunSpec with Matchers {
 
   describe("multiple feed instances of same type") {
     class SampleFeed1 extends Feed {
+      override val tableName: String = "samplefeed1"
+      override val primaryKeyCol: String = ""
+      override val createTableStatement: String = ""
+      override val dropTableStatement: String = ""
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
@@ -80,5 +97,18 @@ class FeedSpec extends FunSpec with Matchers {
       sampleFeedConnection1.close()
       anotherSampleFeedConnection1.close()
     }
+  }
+
+  // WARNING: RUNNING THIS TEST MAY ERASE DATA!!!
+  describe("tables need to be created and deleted") {
+    val googleNews = new GoogleNews
+    googleNews.createTable()
+    val dbm = googleNews.connection.getMetaData
+    val rs = dbm.getTables(null, null, googleNews.tableName, null)
+    val record = rs.next
+    println(record)
+    if (rs.next) System.out.println("Table exists")
+    else System.out.println("Table does not exist")
+    googleNews.dropTable()
   }
 }

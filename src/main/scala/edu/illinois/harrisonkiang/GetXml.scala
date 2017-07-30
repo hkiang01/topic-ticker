@@ -64,21 +64,21 @@ object GetXml extends App with TopicTickerLogger {
     if(result == null) "" else result
   }
 
-  val articleText = titleLinkPubDateText.par.map(elem => {
-    val guid = elem.guid
-    val url = elem.link
-    val methodAndArticleText = getArticleTextAndMethod(url)
-    val method = methodAndArticleText._1
-    val cleansedArticleText = methodAndArticleText._2
-    if(cleansedArticleText.nonEmpty) {
-      val sentenceSentiments = {
-        val results = SentimentAnalyzer.extractSentiments(cleansedArticleText)
-        results.map(result => SentenceSentiment(result._1, result._2))
-      }
-      ArticleText(elem.guid, elem.localDateTime, sentenceSentiments, elem.link, method, cleansedArticleText)
-    } else {
-      null
-    }
-  }).filter(_ != null)
+//  val articleText = titleLinkPubDateText.par.map(elem => {
+//    val guid = elem.guid
+//    val url = elem.link
+//    val methodAndArticleText = getArticleTextAndMethod(url)
+//    val method = methodAndArticleText._1
+//    val cleansedArticleText = methodAndArticleText._2
+//    if(cleansedArticleText.nonEmpty) {
+//      val sentenceSentiments = {
+//        val results = SentimentAnalyzer.extractSentiments(cleansedArticleText)
+//        results.map(result => SentenceSentiment(result._1, result._2))
+//      }
+//      ArticleText(elem.guid, elem.localDateTime, sentenceSentiments, elem.link, method, cleansedArticleText)
+//    } else {
+//      null
+//    }
+//  }).filter(_ != null)
 
 }
