@@ -100,7 +100,7 @@ class FeedSpec extends FunSpec with Matchers {
   }
 
   // WARNING: RUNNING THIS TEST MAY ERASE DATA!!!
-  describe("tables need to be created and deleted") {
+  ignore("tables need to be created and deleted") {
     val googleNews = new GoogleNews
     googleNews.createTable()
     val dbm = googleNews.connection.getMetaData
