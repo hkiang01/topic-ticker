@@ -7,7 +7,7 @@ import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.{AutoDetectParser, ParseContext, Parser}
 import org.apache.tika.sax.BodyContentHandler
 
-object Tika extends TopicTickerLogger {
+trait Tika extends TopicTickerLogger {
 
   /**
     * A helper for using Apache Tika's Parser API

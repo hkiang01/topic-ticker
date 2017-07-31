@@ -15,7 +15,7 @@ import scala.collection.convert.wrapAll._
   * Created by harrison.kiang on 7/10/17.
   * @see <a href="https://github.com/shekhargulati/52-technologies-in-2016/blob/master/03-stanford-corenlp/README.md"></a>
   */
-object SentimentAnalyzer {
+trait SentimentAnalyzer {
 
   private val logger: Logger = LogManager.getLogger(this.getClass.toString)
 
@@ -40,7 +40,7 @@ object SentimentAnalyzer {
   }
 
   def extractSentiments(text: String): List[(String, Sentiment)] = {
-    logger.debug(s"running extractSentiments on ${text.take(100)}...")
+    logger.debug(s"running extractSentiments on ${text.take(1000)}...")
     val t0 = System.nanoTime()
     val annotation: Annotation = pipeline.process(text)
     val sentences = annotation.get(classOf[CoreAnnotations.SentencesAnnotation])

@@ -6,7 +6,7 @@ import java.net.URL
 import com.google.gson.JsonParser
 import edu.illinois.harrisonkiang.util.TopicTickerLogger
 
-object Juicer extends TopicTickerLogger {
+trait Juicer extends TopicTickerLogger {
 
   private val JUICER_PREPEND_URL = "https://juicer.herokuapp.com/api/article?url="
 

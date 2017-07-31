@@ -2,7 +2,7 @@ package sentiment
 
 import java.util.UUID
 
-import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiment, GoogleNewsSentencesAndSentimentObj}
+import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiment, GoogleNewsSentencesAndSentimentsObj}
 import edu.illinois.harrisonkiang.util.TopicTickerLogger
 import org.scalatest.{FunSpec, Matchers}
 
@@ -37,21 +37,23 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
     val rs = googleNewsSentencesAndSentiment.getRecords
     rs.next()
 
-    val googleNewsSentencesAndSentimentObj = GoogleNewsSentencesAndSentimentObj(
+    val googleNewsSentencesAndSentimentObj = GoogleNewsSentencesAndSentimentsObj(
         rs.getObject("googlenews_id").asInstanceOf[UUID],
         rs.getArray("sentences"),
-        rs.getArray("sentiment")
+        rs.getArray("sentiments")
       )
     it("a record should be obtainable") {
-      googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentObj]
+      googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentsObj]
     }
   }
 
   describe("google news ids to provide text and sentiment for") {
     logger.info("test")
-    googleNewsSentencesAndSentiment.updateData()
+    googleNewsSentencesAndSentiment.updateSingleData()
+    val googleNewsSentencesAndSentimentObj = googleNewsSentencesAndSentiment.data.head
+    logger.info(googleNewsSentencesAndSentimentObj)
     it("create table statement") {
-      true should be (true)
+      googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentsObj]
     }
   }
 }
