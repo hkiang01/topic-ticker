@@ -2,13 +2,13 @@ package sentiment
 
 import java.util.UUID
 
-import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiment, GoogleNewsSentencesAndSentimentsObj}
+import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiments, GoogleNewsSentencesAndSentimentsObj}
 import edu.illinois.harrisonkiang.util.TopicTickerLogger
 import org.scalatest.{FunSpec, Matchers}
 
 class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTickerLogger {
 
-  val googleNewsSentencesAndSentiment = new GoogleNewsSentencesAndSentiment
+  val googleNewsSentencesAndSentiment = new GoogleNewsSentencesAndSentiments
 
   describe("sample feeds") {
     it("data should be empty at start") {
@@ -31,8 +31,8 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
     }
   }
 
-  ignore("insert records") {
-    googleNewsSentencesAndSentiment.updateData()
+  describe("insert records") {
+    googleNewsSentencesAndSentiment.updateBatch(1)
     googleNewsSentencesAndSentiment.insertRecords()
     val rs = googleNewsSentencesAndSentiment.getRecords
     rs.next()
@@ -42,17 +42,7 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
         rs.getArray("sentences"),
         rs.getArray("sentiments")
       )
-    it("a record should be obtainable") {
-      googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentsObj]
-    }
-  }
-
-  describe("google news ids to provide text and sentiment for") {
-    logger.info("test")
-    googleNewsSentencesAndSentiment.updateSingleData()
-    val googleNewsSentencesAndSentimentObj = googleNewsSentencesAndSentiment.data.head
-    logger.info(googleNewsSentencesAndSentimentObj)
-    it("create table statement") {
+    it("an inserted record should be obtainable") {
       googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentsObj]
     }
   }
