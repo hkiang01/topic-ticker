@@ -41,11 +41,12 @@ class GoogleNewsSpec extends FunSpec with Matchers {
     googleNews.insertRecords()
     val rs = googleNews.getRecords
     rs.next()
+
     val googleNewsObj = GoogleNewsObj(
-        rs.getString(1),
-        rs.getString(2),
-        rs.getString(3),
-        rs.getTimestamp(4)
+        rs.getString("guid"),
+        rs.getString("title"),
+        rs.getString("link"),
+        rs.getTimestamp("pubdate")
       )
     it("a record should be obtainable") {
       googleNewsObj shouldBe a [GoogleNewsObj]

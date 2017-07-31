@@ -22,7 +22,7 @@ trait Feed {
     s"CREATE TABLE ${tableName.toLowerCase()} ("+
       schema.schemaCols.map(schemaCol => {
         s"${schemaCol.colName.toLowerCase()} ${schemaCol.colType.toUpperCase()}"
-      }).mkString(", ") + s", UNIQUE ($uniqueCol) )"
+      }).mkString(", ") + s", PRIMARY KEY (id), UNIQUE ($uniqueCol) )"
   }
 
   def createTable(): Unit = {
@@ -48,9 +48,12 @@ trait Feed {
     stmt.executeQuery(sql)
   }
 
-  def queryHeaderForInsertRecords: String = s"INSERT INTO ${tableName.toLowerCase()} " +
-    s"(" + schema.schemaCols.map(_.colName).mkString(", ") + ") VALUES " +
-    "(" + ("?," * schema.schemaCols.length).dropRight(1) + ")"
+  def queryHeaderForInsertRecords: String = {
+    val nonIdCols = schema.schemaCols.filterNot(_.colName == "id")
+    s"INSERT INTO ${tableName.toLowerCase()} " +
+      s"(" + nonIdCols.map(_.colName).mkString(", ") + ") VALUES " +
+      "(" + ("?," * nonIdCols.length).dropRight(1) + ")"
+  }
 
   def insertRecords(): Unit
 

@@ -1,13 +1,12 @@
 package edu.illinois.harrisonkiang.feeds.rss
 
-import java.sql.{SQLException, Timestamp}
+import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 
 import edu.illinois.harrisonkiang.feeds.{Feed, Schema, SchemaCol}
 import edu.illinois.harrisonkiang.util.TopicTickerLogger
 
-import scala.collection.immutable
 import scala.xml.{Elem, NodeSeq, XML}
 import scalaj.http.{Http, HttpResponse}
 
@@ -15,15 +14,19 @@ case class GoogleNewsObj(guid: String, title: String, link: String, pubDate: Tim
 
 class GoogleNews extends Feed with TopicTickerLogger {
 
+  // enables uuid_generate_v4
+  connection.createStatement().execute("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
+
   override val tableName: String = "googlenews"
 
   val guidLength = 62
   val DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz"
   override val schema: Schema = Schema(Array(
+    SchemaCol("id", "uuid DEFAULT uuid_generate_v4 ()"),
     SchemaCol("guid", s"char($guidLength)"),
     SchemaCol("title", "text"),
     SchemaCol("link", "text"),
-    SchemaCol("pubDate", "timestamp")
+    SchemaCol("pubdate", "timestamp")
   ))
   override val uniqueCol: String = "link"
 
@@ -34,8 +37,6 @@ class GoogleNews extends Feed with TopicTickerLogger {
 
   override def insertRecords(): Unit = {
     ensureTableExists()
-
-    var myConnection = connection
 
     val nonConflictingInsertQuery = queryHeaderForInsertRecords.concat(
       " ON CONFLICT DO NOTHING"
