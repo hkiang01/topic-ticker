@@ -4,15 +4,14 @@ import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 
-import edu.illinois.harrisonkiang.feeds.{Feed, Schema, SchemaCol}
-import edu.illinois.harrisonkiang.util.TopicTickerLogger
+import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, TopicTickerTable}
 
 import scala.xml.{Elem, NodeSeq, XML}
 import scalaj.http.{Http, HttpResponse}
 
 case class GoogleNewsObj(guid: String, title: String, link: String, pubDate: Timestamp)
 
-class GoogleNews extends Feed with TopicTickerLogger {
+class GoogleNews extends TopicTickerTable with TopicTickerLogger {
 
   // enables uuid_generate_v4
   connection.createStatement().execute("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")

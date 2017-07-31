@@ -1,13 +1,13 @@
 package feeds.rss
 
 import edu.illinois.harrisonkiang.feeds.rss.GoogleNews
-import edu.illinois.harrisonkiang.feeds.{Feed, Schema, SchemaCol}
+import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerTable}
 import org.scalatest.{FunSpec, Matchers}
 
-class FeedSpec extends FunSpec with Matchers {
+class TopicTickerTableSpec extends FunSpec with Matchers {
 
   describe("single feed connection of a given type") {
-    class SampleFeed1 extends Feed {
+    class SampleFeed1 extends TopicTickerTable {
       override val tableName: String = "samplefeed1"
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""
@@ -35,7 +35,7 @@ class FeedSpec extends FunSpec with Matchers {
   }
 
   describe("multiple feed connections of different types") {
-    class SampleFeed1 extends Feed {
+    class SampleFeed1 extends TopicTickerTable {
       override val tableName: String = "samplefeed1"
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""
@@ -47,7 +47,7 @@ class FeedSpec extends FunSpec with Matchers {
       override def insertRecords(): Unit = {}
     }
 
-    class SampleFeed2 extends Feed {
+    class SampleFeed2 extends TopicTickerTable {
       override val tableName: String = "samplefeed2"
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""
@@ -82,7 +82,7 @@ class FeedSpec extends FunSpec with Matchers {
   }
 
   describe("multiple feed instances of same type") {
-    class SampleFeed1 extends Feed {
+    class SampleFeed1 extends TopicTickerTable {
       override val tableName: String = "samplefeed1"
       override val createTableStatement: String = ""
       override val dropTableStatement: String = ""

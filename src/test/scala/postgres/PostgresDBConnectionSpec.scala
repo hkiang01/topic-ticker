@@ -13,6 +13,8 @@ import org.scalatest.{FunSpec, Matchers}
   */
 class PostgresDBConnectionSpec extends FunSpec with Matchers {
 
+  val postgresDBConnection = new PostgresDBConnection()
+
   def getCurrentDateString: String = {
     val currentDateFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
     currentDateFormat.format(new Date)
@@ -26,7 +28,7 @@ class PostgresDBConnectionSpec extends FunSpec with Matchers {
   }
 
   describe("connection to postgres database analyzer") {
-    val connection = PostgresDBConnection.createConnection()
+    val connection = postgresDBConnection.createConnection()
     try {
       val resultSetDate = getCurrentPostgresDBDateString(connection)
       val currentDate = getCurrentDateString
@@ -49,7 +51,7 @@ class PostgresDBConnectionSpec extends FunSpec with Matchers {
     var stmt: Statement = null
 
     try {
-      conn = PostgresDBConnection.createConnection()
+      conn = postgresDBConnection.createConnection()
       stmt = conn.createStatement
       val sql = s"CREATE TABLE $testTableName " +
         "(id INTEGER not NULL, " +
@@ -85,7 +87,7 @@ class PostgresDBConnectionSpec extends FunSpec with Matchers {
     }
 
     try {
-      conn = PostgresDBConnection.createConnection()
+      conn = postgresDBConnection.createConnection()
       stmt = conn.createStatement
       val sql = s"DROP TABLE $testTableName "
       stmt.executeUpdate(sql)

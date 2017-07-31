@@ -3,7 +3,7 @@ package edu.illinois.harrisonkiang.postgres
 import java.sql.{Connection, DriverManager}
 import java.util.Properties
 
-object PostgresDBConnection {
+class PostgresDBConnection {
 
   private val defaultUrl = "jdbc:postgresql://localhost/"
 

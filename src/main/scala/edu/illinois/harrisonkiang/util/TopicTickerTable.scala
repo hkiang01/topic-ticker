@@ -1,4 +1,4 @@
-package edu.illinois.harrisonkiang.feeds
+package edu.illinois.harrisonkiang.util
 
 import java.sql.Connection
 
@@ -11,12 +11,12 @@ case class Schema(schemaCols: Array[SchemaCol])
   * Maps Scala types to Postgres types
   * @see <a href="https://www.postgresql.org/docs/9.6/static/datatype.html"></a>
   */
-trait Feed {
+trait TopicTickerTable extends TopicTickerLogger{
   val tableName: String
   val schema: Schema
   val uniqueCol: String
 
-  def connection: Connection = PostgresDBConnection.createConnection()
+  def connection: Connection = new PostgresDBConnection().createConnection()
 
   def createTableStatement: String = {
     s"CREATE TABLE ${tableName.toLowerCase()} ("+
@@ -27,6 +27,8 @@ trait Feed {
 
   def createTable(): Unit = {
     val stmt = connection.createStatement()
+    logger.info("creating table")
+    logger.info(createTableStatement)
     stmt.execute(createTableStatement)
   }
 

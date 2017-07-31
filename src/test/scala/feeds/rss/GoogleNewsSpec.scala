@@ -52,11 +52,4 @@ class GoogleNewsSpec extends FunSpec with Matchers {
       googleNewsObj shouldBe a [GoogleNewsObj]
     }
   }
-
-  describe("create table statement") {
-    println(googleNews.createTableStatement)
-    it("create table statement") {
-      true should be (true)
-    }
-  }
 }
