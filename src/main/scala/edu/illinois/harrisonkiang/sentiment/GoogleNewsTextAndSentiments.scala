@@ -54,6 +54,7 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
     logger.info(stmt.toString)
 
     stmt.executeBatch()
+    stmt.close()
     data = ArrayBuffer()
   }
 

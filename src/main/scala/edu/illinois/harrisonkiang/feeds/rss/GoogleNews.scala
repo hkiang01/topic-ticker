@@ -49,6 +49,8 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     connection.setAutoCommit(false)
     val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
+    data.foreach(println)
+
     if(data != null) {
       data.foreach(datum => {
         stmt.setString(1, datum.guid)
@@ -62,6 +64,7 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     logger.info(stmt.toString)
 
     stmt.executeBatch()
+    stmt.close()
     data = null
   }
 
@@ -71,6 +74,11 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     val rawResponse = Http(rssUrl)
       .timeout(connTimeoutMs = 2000, readTimeoutMs = 5000)
       .asString
+
+    if(!rawResponse.isSuccess) {
+      logger.error(s"${rawResponse.body}\n" +
+        s"http request to $rssUrl was not successful!")
+    }
 
     val xmlElem = XML.loadString(rawResponse.body)
     xmlElem \\ "item"
