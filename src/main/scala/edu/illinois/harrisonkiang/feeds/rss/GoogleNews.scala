@@ -32,7 +32,7 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     SchemaCol("link", "text"),
     SchemaCol("pubdate", "timestamp")
   ))
-  override val uniqueCol: String = "link"
+  override val uniqueConstraint: String = "link"
 
   var data: Seq[GoogleNewsObj] = Seq()
 

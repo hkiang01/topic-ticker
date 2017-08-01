@@ -3,11 +3,10 @@ package entityextraction
 import edu.illinois.harrisonkiang.entityextraction.EntityExtractor
 import org.scalatest.{FunSpec, Matchers}
 
-class EntityExtractorSuite extends FunSpec with Matchers {
+class EntityExtractorSuite extends FunSpec with Matchers with EntityExtractor {
 
-  val entityExtractor = new EntityExtractor()
   describe("test") {
-    val entities = entityExtractor.extractEntities(
+    val entities = extractEntities(
       "John Smith went to China. He visited Beijing, on January 10th, 2013." +
       " He later went to Paris, France.")
 

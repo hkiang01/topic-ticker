@@ -14,7 +14,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
-      override val uniqueCol: String = ""
+      override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
       override def insertRecords(): Unit = {}
     }
@@ -42,7 +42,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
-      override val uniqueCol: String = ""
+      override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
       override def insertRecords(): Unit = {}
     }
@@ -54,7 +54,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       override val schema: Schema = Schema(Array(
         SchemaCol("col2", "type2")
       ))
-      override val uniqueCol: String = ""
+      override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
       override def insertRecords(): Unit = {}
     }
@@ -89,7 +89,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       override val schema: Schema = Schema(Array(
         SchemaCol("col1", "type1")
       ))
-      override val uniqueCol: String = ""
+      override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
       override def insertRecords(): Unit = {}
     }

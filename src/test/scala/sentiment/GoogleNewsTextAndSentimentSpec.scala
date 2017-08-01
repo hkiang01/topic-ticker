@@ -2,13 +2,14 @@ package sentiment
 
 import java.util.UUID
 
-import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiments, GoogleNewsSentencesAndSentimentsObj, Sentiment}
+import edu.illinois.harrisonkiang.entityextraction
+import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentimentsObj, Sentiment}
 import edu.illinois.harrisonkiang.util.TopicTickerLogger
 import org.scalatest.{FunSpec, Matchers}
 
 class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTickerLogger {
 
-  val googleNewsSentencesAndSentiment = new GoogleNewsSentencesAndSentiments
+  val googleNewsSentencesAndSentiment = new entityextraction.GoogleNewsArticleEntities
 
   describe("sample feeds") {
     it("data should be empty at start") {

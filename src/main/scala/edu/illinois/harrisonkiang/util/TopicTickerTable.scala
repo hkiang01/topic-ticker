@@ -14,7 +14,7 @@ case class Schema(schemaCols: Array[SchemaCol])
 trait TopicTickerTable extends TopicTickerLogger{
   val tableName: String
   val schema: Schema
-  val uniqueCol: String
+  val uniqueConstraint: String
 
   def connection: Connection = new PostgresDBConnection().createConnection()
 
@@ -22,7 +22,7 @@ trait TopicTickerTable extends TopicTickerLogger{
     s"CREATE TABLE ${tableName.toLowerCase()} ("+
       schema.schemaCols.map(schemaCol => {
         s"${schemaCol.colName.toLowerCase()} ${schemaCol.colType.toUpperCase()}"
-      }).mkString(", ") + s", PRIMARY KEY (id), UNIQUE ($uniqueCol) )"
+      }).mkString(", ") + s", PRIMARY KEY (id), UNIQUE ($uniqueConstraint) )"
   }
 
   def createTable(): Unit = {

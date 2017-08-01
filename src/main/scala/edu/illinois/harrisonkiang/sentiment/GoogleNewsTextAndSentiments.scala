@@ -26,7 +26,7 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
     SchemaCol("sentences", s"text[]"),
     SchemaCol("sentiments", s"sentiment[]")
   ))
-  override val uniqueCol: String = "googlenews_id"
+  override val uniqueConstraint: String = "googlenews_id"
 
   var data: ArrayBuffer[GoogleNewsSentencesAndSentimentsObj] = ArrayBuffer()
 
