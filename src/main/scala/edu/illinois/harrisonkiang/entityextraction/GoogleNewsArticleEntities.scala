@@ -79,6 +79,7 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
     val sql = s"select googlenews_id, sentences from googlenews_sentenceandsentiments " +
       s"where googlenews_id not in (select googlenews_id from $tableName) LIMIT $numRecords"
     stmt.executeQuery(sql)
+    stmt.close()
   }
 
   def updateBatch(batchSize: Int = 1): Boolean = {

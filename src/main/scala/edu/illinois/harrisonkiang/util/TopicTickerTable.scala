@@ -30,6 +30,7 @@ trait TopicTickerTable extends TopicTickerLogger{
     logger.info("creating table")
     logger.info(createTableStatement)
     stmt.execute(createTableStatement)
+    stmt.close()
   }
 
   def tableExists: Boolean = {
@@ -48,6 +49,7 @@ trait TopicTickerTable extends TopicTickerLogger{
     val stmt = connection.createStatement()
     val sql = s"SELECT * FROM $tableName"
     stmt.executeQuery(sql)
+    stmt.close()
   }
 
   def queryHeaderForInsertRecords: String = {
@@ -65,6 +67,7 @@ trait TopicTickerTable extends TopicTickerLogger{
   def dropTable(): Unit = {
     val stmt = connection.createStatement()
     stmt.execute(dropTableStatement)
+    stmt.close()
   }
 
   def closeConnection(): Unit = {

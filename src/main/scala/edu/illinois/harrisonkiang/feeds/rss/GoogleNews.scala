@@ -46,7 +46,7 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
       " ON CONFLICT DO NOTHING"
     )
 
-    connection.setAutoCommit(false)
+//    connection.setAutoCommit(false)
     val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
     data.foreach(println)
