@@ -2,7 +2,7 @@ package sentiment
 
 import java.util.UUID
 
-import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiments, GoogleNewsSentencesAndSentimentsObj}
+import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiments, GoogleNewsSentencesAndSentimentsObj, Sentiment}
 import edu.illinois.harrisonkiang.util.TopicTickerLogger
 import org.scalatest.{FunSpec, Matchers}
 
@@ -44,6 +44,14 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
       )
     it("an inserted record should be obtainable") {
       googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentsObj]
+    }
+  }
+
+  describe("create type sentiment as enum") {
+    println("asdf")
+    println(Sentiment.createEnumStatement)
+    it("") {
+      1 should be (1)
     }
   }
 }

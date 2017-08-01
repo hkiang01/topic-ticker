@@ -18,6 +18,8 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
 
   override val tableName: String = "googlenews_sentenceandsentiments"
 
+  Sentiment.createSentimentEmum()
+
   override val schema: Schema = Schema(Array(
     SchemaCol("id", "uuid DEFAULT uuid_generate_v4 ()"),
     SchemaCol("googlenews_id", "uuid"),

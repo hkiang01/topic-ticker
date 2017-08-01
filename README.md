@@ -21,7 +21,7 @@ Create the user `topictickeruser` with password `topictickerpassword`.
 $ psql -q -U postgres postgres
 postgres=# CREATE user topictickeruser;
 postgres=# ALTER USER topictickeruser PASSWORD 'topictickerpassword';
-postgres=# CREATE DATABASE topictickedb OWNER topictickeruser;
+postgres=# CREATE DATABASE topictickerdb OWNER topictickeruser;
 ```
 
 You have now created a postgres database called topictickerdb with `topictickeruser` as the owner.

@@ -8,17 +8,6 @@ import edu.illinois.harrisonkiang.postgres.PostgresDBConnection
   * @see <a href="https://github.com/shekhargulati/52-technologies-in-2016/blob/master/03-stanford-corenlp/README.md"></a>
   */
 object Sentiment extends Enumeration {
-
-  val sentiments: Array[String] = Sentiment.values.map(_.toString).toArray
-  val createEnumStatement: String =
-    "DO $$\nBEGIN\nIF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sentiment') THEN \n" +
-      "CREATE TYPE sentiment AS ENUM (" +
-      sentiments.mkString("\'", "\', \'", "\'") +
-      ");\n" +
-      "END IF;\nEND\n$$"
-
-  new PostgresDBConnection().createConnection().createStatement().execute(createEnumStatement)
-
   type Sentiment = Value
   val VERY_POSITIVE, POSITIVE,NEUTRAL, NEGATIVE, VERY_NEGATIVE = Value
 
@@ -28,5 +17,16 @@ object Sentiment extends Enumeration {
     case 2 => Sentiment.NEUTRAL
     case 3 => Sentiment.POSITIVE
     case 4 => Sentiment.VERY_POSITIVE
+  }
+
+  def createEnumStatement: String =
+    "DO $$\nBEGIN\nIF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sentiment') THEN \n" +
+      "CREATE TYPE sentiment AS ENUM (" +
+      Sentiment.values.map(_.toString).toArray.mkString("\'", "\', \'", "\'") +
+      ");\n" +
+      "END IF;\nEND\n$$"
+
+  def createSentimentEmum(): Unit = {
+    new PostgresDBConnection().createConnection().createStatement().execute(createEnumStatement)
   }
 }

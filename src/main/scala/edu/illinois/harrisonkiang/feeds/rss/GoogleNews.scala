@@ -13,6 +13,11 @@ case class GoogleNewsObj(guid: String, title: String, link: String, pubDate: Tim
 
 class GoogleNews extends TopicTickerTable with TopicTickerLogger {
 
+  val rssUrls: Array[String] = Array(
+    "https://news.google.com/news/rss/headlines/section/topic/WORLD?ned=us&hl=en",
+    "https://news.google.com/news/rss/?ned=us&hl=en"
+  )
+
   // enables uuid_generate_v4
   connection.createStatement().execute("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 
@@ -60,12 +65,14 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
 
   override def dropTableStatement: String = super.dropTableStatement
 
-  private def getRawResponse: HttpResponse[String] = Http("https://news.google.com/news/rss/?ned=us&hl=en")
-    .timeout(connTimeoutMs = 2000, readTimeoutMs = 5000)
-    .asString
-  private def getResponseBody: String = getRawResponse.body
-  private def getResponseBodyAsXmlElem: Elem = XML.loadString(getResponseBody)
-  private def getItemsAsNodeSeq: NodeSeq = getResponseBodyAsXmlElem \\ "item"
+  def getRSSNodeSeq(rssUrl: String): NodeSeq = {
+    val rawResponse = Http(rssUrl)
+      .timeout(connTimeoutMs = 2000, readTimeoutMs = 5000)
+      .asString
+
+    val xmlElem = XML.loadString(rawResponse.body)
+    xmlElem \\ "item"
+  }
 
   private def getTimestamp(str: String): Timestamp = {
     val f  = new SimpleDateFormat(DATE_FORMAT)
@@ -75,19 +82,20 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
   }
 
   def updateData(): Unit = {
-    val newData = getItemsAsNodeSeq.map(nodeSeq => {
-      GoogleNewsObj(
-        (nodeSeq \ "guid").text,
-        (nodeSeq \ "title").text,
-        (nodeSeq  \ "link").text,
-        getTimestamp((nodeSeq \ "pubDate").text))
+    rssUrls.foreach(rssUrl => {
+      val newData = getRSSNodeSeq(rssUrl).map(nodeSeq => {
+        GoogleNewsObj(
+          (nodeSeq \ "guid").text,
+          (nodeSeq \ "title").text,
+          (nodeSeq  \ "link").text,
+          getTimestamp((nodeSeq \ "pubDate").text))
+      })
+      this.data = newData
+      insertRecords()
     })
-    this.data = newData
   }
 
   override def updateTableWithFreshData(): Unit = {
     updateData()
-    insertRecords()
   }
-
 }

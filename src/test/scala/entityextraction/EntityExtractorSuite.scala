@@ -5,8 +5,21 @@ import org.scalatest.{FunSpec, Matchers}
 
 class EntityExtractorSuite extends FunSpec with Matchers {
 
-//  val entityExtractor = new EntityExtractor()
-//  describe("test") {
-//    entityExtractor.extractEntities("John Smith went to China. He visited Beijing, on January 10th, 2013.")
-//  }
+  val entityExtractor = new EntityExtractor()
+  describe("test") {
+    val entities = entityExtractor.extractEntities(
+      "John Smith went to China. He visited Beijing, on January 10th, 2013." +
+      " He later went to Paris, France.")
+
+    it("entity extraction should work as expected") {
+      entities should be (Array(
+        ("John Smith", "PERSON"),
+        ("China", "LOCATION"),
+        ("Beijing", "LOCATION"),
+        ("January 10th , 2013", "DATE"),
+        ("Paris France", "LOCATION")
+      ))
+    }
+
+  }
 }
