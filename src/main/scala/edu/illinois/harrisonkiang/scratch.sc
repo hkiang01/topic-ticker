@@ -1,10 +1,10 @@
-import edu.illinois.harrisonkiang.sentiment.Sentiment
+import org.clulab.processors.corenlp.CoreNLPProcessor
+import org.clulab.processors.shallownlp.ShallowNLPProcessor
+import org.clulab.processors.Processor
 
-val sentiments: Array[String] = Sentiment.values.map(_.toString).toArray
-val createEnumStatement: String =
-  "DO $$\nBEGIN\nIF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sentiment') THEN \n" +
-  "CREATE TYPE sentiment AS ENUM (" +
-  sentiments.mkString("\'", "\', \'", "\'") +
-  ");\n" +
-  "END IF;\nEND\n$$"
-println(createEnumStatement)
+val proc:Processor = new CoreNLPProcessor(withDiscourse = ShallowNLPProcessor.WITH_DISCOURSE)
+
+val doc = proc.annotate("John Smith went to China. He visited Beijing, on January 10th, 2013.")
+for (sentence <- doc.sentences) {
+  sentence.entities.foreach(entities => println(s"Named entities: ${entities.mkString(" ")}"))
+}

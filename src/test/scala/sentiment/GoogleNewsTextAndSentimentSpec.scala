@@ -16,6 +16,13 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
     }
   }
 
+  describe("ensure table exists") {
+    googleNewsSentencesAndSentiment.ensureTableExists()
+    it("table should exist if it is ensured to exist") {
+      googleNewsSentencesAndSentiment.tableExists should be (true)
+    }
+  }
+
   ignore("data updated") {
     it("after calling a method in googleNews, data should be updated") {
       googleNewsSentencesAndSentiment.updateData()
@@ -24,14 +31,7 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
     }
   }
 
-  describe("ensure table exists") {
-    googleNewsSentencesAndSentiment.ensureTableExists()
-    it("table should exist if it is ensured to exist") {
-      googleNewsSentencesAndSentiment.tableExists should be (true)
-    }
-  }
-
-  describe("insert records") {
+  ignore("insert records") {
     googleNewsSentencesAndSentiment.updateBatch(1)
     googleNewsSentencesAndSentiment.insertRecords()
     val rs = googleNewsSentencesAndSentiment.getRecords
