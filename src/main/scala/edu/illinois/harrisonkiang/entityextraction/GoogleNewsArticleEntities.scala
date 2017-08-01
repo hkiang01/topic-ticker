@@ -3,9 +3,14 @@ package edu.illinois.harrisonkiang.entityextraction
 import java.sql.ResultSet
 import java.util.UUID
 
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+
 import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, TopicTickerTable}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{Await, TimeoutException, future}
 
 case class GoogleNewsArticleIdsAndSentences(googlenews_id: UUID, sentences: Array[String])
 case class GoogleNewsArticleEntitiesObj(googlenews_id: UUID, entity: String, entity_type: String)
@@ -45,20 +50,39 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
       val googleNewsId = datum.googlenews_id
 
       datum.sentences.foreach(sentence => {
-        val entitiesAndTypes = extractEntities(sentence)
 
-        entitiesAndTypes.foreach(entityAndType => {
-          val entity = entityAndType._1
-          val entityType = entityAndType._2
+        var entitiesAndTypes: Array[(String, String)] = Array.empty
 
-          stmt.setObject(1, googleNewsId)
-          stmt.setString(2, entity)
-          stmt.setString(3, entityType)
-          stmt.addBatch()
-        })
+        lazy val f = Future{
+          entitiesAndTypes = extractEntities(sentence)
+          if(entitiesAndTypes.nonEmpty) {
+            entitiesAndTypes.foreach(entityAndType => {
+              val entity = entityAndType._1
+              val entityType = entityAndType._2
+
+              stmt.setObject(1, googleNewsId)
+              stmt.setString(2, entity)
+              stmt.setString(3, entityType)
+              stmt.addBatch()
+            })
+            logger.info(stmt.toString)
+            stmt.executeBatch()
+          }
+        }
+
+        try {
+          Await.result(f, 1 minute)
+        } catch {
+          case te: TimeoutException => {
+            logger.warn("timed out")
+          }
+          case e: Exception => {
+            logger.error("exception!")
+          }
+        } finally {
+
+        }
       })
-      logger.info(stmt.toString)
-      stmt.executeBatch()
     })
     data = ArrayBuffer()
   }
@@ -71,15 +95,19 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
     stmt.executeQuery(sql)
   }
 
-  def updateBatch(batchSize: Int = 5): Boolean = {
+  def updateBatch(batchSize: Int = 1): Boolean = {
     ensureTableExists()
-    val resultSet = googleNewsIdsAndSentencesWithoutEntities(5)
+    val resultSet = googleNewsIdsAndSentencesWithoutEntities(batchSize)
     var result = false
     while(resultSet.next()) {
       result = true
       val googleNewsId = resultSet.getObject("googlenews_id").asInstanceOf[UUID]
-      val sentences = resultSet.getArray("sentences").getArray.asInstanceOf[Array[String]]
-      data += GoogleNewsArticleIdsAndSentences(googleNewsId, sentences)
+      val sentencesRaw = resultSet.getArray("sentences")
+      if(sentencesRaw != null) {
+        val sentences = sentencesRaw.getArray.asInstanceOf[Array[String]]
+        data += GoogleNewsArticleIdsAndSentences(googleNewsId, sentences)
+      }
+      insertRecords()
     }
     result
   }

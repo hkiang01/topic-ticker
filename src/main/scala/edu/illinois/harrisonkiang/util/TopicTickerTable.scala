@@ -16,7 +16,7 @@ trait TopicTickerTable extends TopicTickerLogger{
   val schema: Schema
   val uniqueConstraint: String
 
-  def connection: Connection = new PostgresDBConnection().createConnection()
+  val connection: Connection = new PostgresDBConnection().createConnection()
 
   def createTableStatement: String = {
     s"CREATE TABLE ${tableName.toLowerCase()} ("+

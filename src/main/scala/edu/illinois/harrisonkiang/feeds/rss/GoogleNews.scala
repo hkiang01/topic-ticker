@@ -6,8 +6,8 @@ import java.util.TimeZone
 
 import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, TopicTickerTable}
 
-import scala.xml.{Elem, NodeSeq, XML}
-import scalaj.http.{Http, HttpResponse}
+import scala.xml.{NodeSeq, XML}
+import scalaj.http.Http
 
 case class GoogleNewsObj(guid: String, title: String, link: String, pubDate: Timestamp)
 
@@ -49,13 +49,15 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     connection.setAutoCommit(false)
     val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
-    data.foreach(datum => {
-      stmt.setString(1, datum.guid)
-      stmt.setString(2, datum.title)
-      stmt.setString(3, datum.link)
-      stmt.setTimestamp(4, datum.pubDate)
-      stmt.addBatch()
-    })
+    if(data != null) {
+      data.foreach(datum => {
+        stmt.setString(1, datum.guid)
+        stmt.setString(2, datum.title)
+        stmt.setString(3, datum.link)
+        stmt.setTimestamp(4, datum.pubDate)
+        stmt.addBatch()
+      })
+    }
 
     logger.info(stmt.toString)
 

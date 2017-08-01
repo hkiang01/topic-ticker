@@ -10,10 +10,11 @@ import scala.collection.mutable
 
 trait EntityExtractor {
 
+  val props: Properties = new Properties()
+  props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner")
+  val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
+
   def extractEntities(text: String): Array[(String, String)] = {
-    val props: Properties = new Properties()
-    props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner")
-    val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
 
     val document: Annotation = new Annotation(text)
     pipeline.annotate(document)

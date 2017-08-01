@@ -4,6 +4,8 @@ import edu.illinois.harrisonkiang.sentiment.GoogleNewsSentencesAndSentiments
 
 object TransformGoogleNews {
   def main(args: Array[String]): Unit = {
-    (new GoogleNewsSentencesAndSentiments).updateData()
+    val googleNewsSentencesAndSentiments = new GoogleNewsSentencesAndSentiments
+    googleNewsSentencesAndSentiments.updateData()
+    googleNewsSentencesAndSentiments.connection.close()
   }
 }
