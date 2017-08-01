@@ -8,10 +8,6 @@ import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-/**
-  * @see <a href="https://github.com/clulab/processors/blob/master/corenlp/src/main/scala/org/clulab/processors/examples/ProcessorExample.scala">this example</a>
-  * @see <a href="https://sujitpal.blogspot.com/2014/09/coreference-resolution-with-stanford.html">this blog post</a>
-  */
 trait EntityExtractor {
 
   def extractEntities(text: String): Array[(String, String)] = {
