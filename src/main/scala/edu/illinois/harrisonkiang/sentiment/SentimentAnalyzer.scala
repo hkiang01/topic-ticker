@@ -34,12 +34,12 @@ trait SentimentAnalyzer {
   }
 
   private def extractSentiment(text: String): Sentiment = {
-    val (_, sentiment) = extractSentiments(text)
+    val (_, sentiment) = extractSentencesAndSentiments(text)
       .maxBy { case (sentence, _) => sentence.length }
     sentiment
   }
 
-  def extractSentiments(text: String): List[(String, Sentiment)] = {
+  def extractSentencesAndSentiments(text: String): List[(String, Sentiment)] = {
     logger.debug(s"running extractSentiments on ${text.take(1000)}...")
     val t0 = System.nanoTime()
     val annotation: Annotation = pipeline.process(text)

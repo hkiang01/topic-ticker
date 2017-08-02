@@ -5,6 +5,7 @@ import java.util.UUID
 
 import edu.illinois.harrisonkiang.textextraction.TextExtraction
 import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, TopicTickerTable}
+import org.postgresql.util.PGobject
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -38,11 +39,14 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
       " ON CONFLICT DO NOTHING"
     )
 
-    connection.setAutoCommit(false)
     val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
     data.foreach(datum => {
-      stmt.setObject(1, datum.googlenews_id)
+      val googlenews_idPgObject: PGobject = new PGobject()
+      googlenews_idPgObject.setType("uuid")
+      googlenews_idPgObject.setValue(datum.googlenews_id.toString)
+      stmt.setObject(1, googlenews_idPgObject)
+
       stmt.setArray(2, datum.sentences)
       stmt.setArray(3, datum.sentiments)
       stmt.addBatch()
@@ -64,9 +68,22 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
     stmt.executeQuery(sql)
   }
 
-  def updateBatch(batchSize: Int = 5): Boolean = {
+  private def createGoogleNewsSentencesAndSentimentsObjFromArticleText(googleNewsId: UUID, articleText: String): GoogleNewsSentencesAndSentimentsObj = {
+    val sentencesAndSentiments = extractSentencesAndSentiments(articleText)
+    val sentences = sentencesAndSentiments.map(_._1)
+    val sentencesSqlArr = connection.createArrayOf("text", sentences.toArray)
+
+    val sentiments = sentencesAndSentiments.map(_._2)
+    val sentimentsSqlArr = connection.createArrayOf("sentiment", sentiments.toArray)
+
+    val result = GoogleNewsSentencesAndSentimentsObj(googleNewsId, sentencesSqlArr, sentimentsSqlArr)
+    logger.info(result)
+    result
+  }
+
+  def updateBatch(batchSize: Int = 1): Boolean = {
     ensureTableExists()
-    val resultSet = googleNewsIdsAndLinksWithoutTextAndSentiment(5)
+    val resultSet = googleNewsIdsAndLinksWithoutTextAndSentiment(batchSize)
     var result = false
     while(resultSet.next()) {
         result = true
@@ -78,15 +95,7 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
         logger.info(s"articleText: ${articleText.take(200)}...")
 
         try {
-          val sentencesAndSentiments = extractSentiments(articleText)
-          val sentences = sentencesAndSentiments.map(_._1)
-          val sentencesSqlArr = connection.createArrayOf("text", sentences.toArray)
-
-          val sentiments = sentencesAndSentiments.map(_._2)
-          val sentimentsSqlArr = connection.createArrayOf("sentiment", sentiments.toArray)
-
-          val newElem = GoogleNewsSentencesAndSentimentsObj(googleNewsId, sentencesSqlArr, sentimentsSqlArr)
-          data += newElem
+          data += createGoogleNewsSentencesAndSentimentsObjFromArticleText(googleNewsId, articleText)
           insertRecords()
         } catch {
           case (oom: OutOfMemoryError) => {

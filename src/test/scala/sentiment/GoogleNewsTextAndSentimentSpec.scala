@@ -2,14 +2,13 @@ package sentiment
 
 import java.util.UUID
 
-import edu.illinois.harrisonkiang.entityextraction
-import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentimentsObj, Sentiment}
+import edu.illinois.harrisonkiang.sentiment.{GoogleNewsSentencesAndSentiments, GoogleNewsSentencesAndSentimentsObj, Sentiment}
 import edu.illinois.harrisonkiang.util.TopicTickerLogger
 import org.scalatest.{FunSpec, Matchers}
 
 class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTickerLogger {
 
-  val googleNewsSentencesAndSentiment = new entityextraction.GoogleNewsArticleEntities
+  val googleNewsSentencesAndSentiment = new GoogleNewsSentencesAndSentiments
 
   describe("sample feeds") {
     it("data should be empty at start") {
@@ -32,9 +31,9 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
     }
   }
 
-  ignore("insert records") {
-    googleNewsSentencesAndSentiment.updateBatch(1)
-    googleNewsSentencesAndSentiment.insertRecords()
+  describe("update batch and insert records") {
+    googleNewsSentencesAndSentiment.updateBatch()
+    googleNewsSentencesAndSentiment.insertRecords(forceOpenConnection = true)
     val rs = googleNewsSentencesAndSentiment.getRecords(forceOpenConnection = true)
     rs.next()
 
