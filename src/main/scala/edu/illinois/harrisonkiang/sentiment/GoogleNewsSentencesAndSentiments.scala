@@ -96,7 +96,6 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
 
         try {
           data += createGoogleNewsSentencesAndSentimentsObjFromArticleText(googleNewsId, articleText)
-          insertRecords()
         } catch {
           case (oom: OutOfMemoryError) => {
             logger.warn(s"out of memory, queuing empty sentences and sentiments for $link")
@@ -106,6 +105,8 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
             logger.warn(s"exception, queuing empty sentences and sentiments for $link")
             data += GoogleNewsSentencesAndSentimentsObj(googleNewsId, null, null)
           }
+        } finally {
+          insertRecords()
         }
     }
     result
