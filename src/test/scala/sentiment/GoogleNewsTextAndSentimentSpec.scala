@@ -35,7 +35,7 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
   ignore("insert records") {
     googleNewsSentencesAndSentiment.updateBatch(1)
     googleNewsSentencesAndSentiment.insertRecords()
-    val rs = googleNewsSentencesAndSentiment.getRecords
+    val rs = googleNewsSentencesAndSentiment.getRecords(forceOpenConnection = true)
     rs.next()
 
     val googleNewsSentencesAndSentimentObj = GoogleNewsSentencesAndSentimentsObj(

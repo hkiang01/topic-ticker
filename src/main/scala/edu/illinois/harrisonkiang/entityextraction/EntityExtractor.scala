@@ -19,7 +19,7 @@ trait EntityExtractor {
     val document: Annotation = new Annotation(text)
     pipeline.annotate(document)
 
-    val sentences= document.get(classOf[SentencesAnnotation]).asScala
+    val sentences = document.get(classOf[SentencesAnnotation]).asScala
 
     val textResult = sentences.flatMap(sentence => {
       val tokens = sentence.get(classOf[TokensAnnotation]).asScala
@@ -37,7 +37,7 @@ trait EntityExtractor {
       var temp: mutable.Buffer[String] = mutable.Buffer()
       for (pair <- pairs) {
         val entityTag = pair._2.trim
-        if(entityTag == lastEntityTag || lastEntityTag == "") {
+        if (entityTag == lastEntityTag || lastEntityTag == "") {
           lastEntityTag = entityTag
           temp += pair._1
         } else {

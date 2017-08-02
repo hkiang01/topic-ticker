@@ -1,10 +1,11 @@
 package edu.illinois.harrisonkiang.util
 
-import scala.concurrent._
-import scala.concurrent.duration.FiniteDuration
-import ExecutionContext.Implicits.global
 import akka.actor.ActorSystem
 import akka.pattern.after
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
+import scala.concurrent.duration.FiniteDuration
 
 /**
   * https://nami.me/2015/01/20/scala-futures-with-timeout/

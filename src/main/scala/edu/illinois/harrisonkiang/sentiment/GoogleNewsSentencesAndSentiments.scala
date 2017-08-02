@@ -8,9 +8,6 @@ import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, To
 
 import scala.collection.mutable.ArrayBuffer
 
-case class GoogleNewsUUIDLink(googlenews_id: UUID, link: String)
-case class GoogleNewsSentencesAndSentimentsObj(googlenews_id: UUID, sentences: java.sql.Array, sentiments: java.sql.Array)
-
 class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtraction with SentimentAnalyzer with TopicTickerLogger {
 
   // enables uuid_generate_v4
@@ -34,7 +31,7 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
   override def queryHeaderForInsertRecords: String = super.queryHeaderForInsertRecords
   override def dropTableStatement: String = super.dropTableStatement
 
-  override def insertRecords(): Unit = {
+  override def insertRecords(forceOpenConnection: Boolean = false): Unit = {
     ensureTableExists()
 
     val nonConflictingInsertQuery = queryHeaderForInsertRecords.concat(
@@ -54,7 +51,9 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
     logger.info(stmt.toString)
 
     stmt.executeBatch()
-    stmt.close()
+    if(!forceOpenConnection) {
+      stmt.close()
+    }
     data = ArrayBuffer()
   }
 

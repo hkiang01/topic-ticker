@@ -3,20 +3,9 @@ package edu.illinois.harrisonkiang.entityextraction
 import java.sql.ResultSet
 import java.util.UUID
 
-import akka.actor.ActorSystem
 import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, TopicTickerTable}
 
-import scala.concurrent._
-import scala.concurrent.duration._
-import ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-import akka.actor.ActorSystem
-import akka.pattern.after
-
 import scala.collection.mutable.ArrayBuffer
-
-case class GoogleNewsArticleIdsAndSentences(googlenews_id: UUID, sentences: Array[String])
-case class GoogleNewsArticleEntitiesObj(googlenews_id: UUID, entity: String, entity_type: String)
 
 class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor with TopicTickerLogger {
 
@@ -39,7 +28,7 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
   override def queryHeaderForInsertRecords: String = super.queryHeaderForInsertRecords
   override def dropTableStatement: String = super.dropTableStatement
 
-  override def insertRecords(): Unit = {
+  override def insertRecords(forceOpenConnection: Boolean = false): Unit = {
     ensureTableExists()
 
     val nonConflictingInsertQuery = queryHeaderForInsertRecords.concat(
@@ -53,7 +42,7 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
 
       datum.sentences.foreach(sentence => {
         val entitiesAndTypes = extractEntities(sentence)
-
+        ensureConnectionIsOpen()
         val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
         entitiesAndTypes.foreach(entityAndType => {
@@ -67,24 +56,31 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
         })
         logger.info(stmt.toString)
         stmt.executeBatch()
-        stmt.close()
+        if(!forceOpenConnection) {
+          stmt.close()
+        }
       })
     })
     data = ArrayBuffer()
   }
 
-  def googleNewsIdsAndSentencesWithoutEntities(numRecords: Int = Integer.MAX_VALUE): ResultSet = {
+  def googleNewsIdsAndSentencesWithoutEntities(numRecords: Int = Integer.MAX_VALUE, forceOpenConnection: Boolean = false): ResultSet = {
+    ensureConnectionIsOpen()
     ensureTableExists()
     val stmt = connection.createStatement()
     val sql = s"select googlenews_id, sentences from googlenews_sentenceandsentiments " +
       s"where googlenews_id not in (select googlenews_id from $tableName) LIMIT $numRecords"
-    stmt.executeQuery(sql)
-    stmt.close()
+    val results =stmt.executeQuery(sql)
+    if(!forceOpenConnection) {
+      stmt.close()
+    }
+    results
   }
 
   def updateBatch(batchSize: Int = 1): Boolean = {
+    ensureConnectionIsOpen()
     ensureTableExists()
-    val resultSet = googleNewsIdsAndSentencesWithoutEntities(batchSize)
+    val resultSet = googleNewsIdsAndSentencesWithoutEntities(batchSize, forceOpenConnection = true)
     var result = false
     while(resultSet.next()) {
       result = true

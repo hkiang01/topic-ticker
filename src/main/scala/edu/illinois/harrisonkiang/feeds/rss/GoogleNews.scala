@@ -9,8 +9,6 @@ import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, To
 import scala.xml.{NodeSeq, XML}
 import scalaj.http.Http
 
-case class GoogleNewsObj(guid: String, title: String, link: String, pubDate: Timestamp)
-
 class GoogleNews extends TopicTickerTable with TopicTickerLogger {
 
   val rssUrls: Array[String] = Array(
@@ -39,7 +37,7 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
   override def createTableStatement: String = super.createTableStatement
   override def queryHeaderForInsertRecords: String = super.queryHeaderForInsertRecords
 
-  override def insertRecords(): Unit = {
+  override def insertRecords(forceOpenConenction: Boolean = false): Unit = {
     ensureTableExists()
 
     val nonConflictingInsertQuery = queryHeaderForInsertRecords.concat(
@@ -49,9 +47,8 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
 //    connection.setAutoCommit(false)
     val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
-    data.foreach(println)
-
     if(data != null) {
+      data.foreach(println)
       data.foreach(datum => {
         stmt.setString(1, datum.guid)
         stmt.setString(2, datum.title)
@@ -64,7 +61,9 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     logger.info(stmt.toString)
 
     stmt.executeBatch()
-    stmt.close()
+    if(!forceOpenConenction) {
+      stmt.close()
+    }
     data = null
   }
 
@@ -91,7 +90,7 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     new Timestamp(time.getTime)
   }
 
-  def updateData(): Unit = {
+  def updateData(forceOpenConnection: Boolean = false): Unit = {
     rssUrls.foreach(rssUrl => {
       val newData = getRSSNodeSeq(rssUrl).map(nodeSeq => {
         GoogleNewsObj(
@@ -101,7 +100,7 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
           getTimestamp((nodeSeq \ "pubDate").text))
       })
       this.data = newData
-      insertRecords()
+      insertRecords(forceOpenConnection)
     })
   }
 

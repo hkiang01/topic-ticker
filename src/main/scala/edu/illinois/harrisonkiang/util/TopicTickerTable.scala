@@ -4,9 +4,6 @@ import java.sql.Connection
 
 import edu.illinois.harrisonkiang.postgres.PostgresDBConnection
 
-case class SchemaCol(colName: String, colType: String)
-case class Schema(schemaCols: Array[SchemaCol])
-
 /**
   * Maps Scala types to Postgres types
   * @see <a href="https://www.postgresql.org/docs/9.6/static/datatype.html"></a>
@@ -16,7 +13,7 @@ trait TopicTickerTable extends TopicTickerLogger{
   val schema: Schema
   val uniqueConstraint: String
 
-  val connection: Connection = new PostgresDBConnection().createConnection()
+  var connection: Connection = new PostgresDBConnection().createConnection()
 
   def createTableStatement: String = {
     s"CREATE TABLE ${tableName.toLowerCase()} ("+
@@ -26,6 +23,7 @@ trait TopicTickerTable extends TopicTickerLogger{
   }
 
   def createTable(): Unit = {
+    ensureConnectionIsOpen()
     val stmt = connection.createStatement()
     logger.info("creating table")
     logger.info(createTableStatement)
@@ -45,11 +43,15 @@ trait TopicTickerTable extends TopicTickerLogger{
     }
   }
 
-  def getRecords: java.sql.ResultSet = {
+  def getRecords(forceOpenConnection: Boolean = false): java.sql.ResultSet = {
+    ensureConnectionIsOpen()
     val stmt = connection.createStatement()
     val sql = s"SELECT * FROM $tableName"
-    stmt.executeQuery(sql)
-    stmt.close()
+    val results = stmt.executeQuery(sql)
+    if(!forceOpenConnection) {
+      stmt.close()
+    }
+    results
   }
 
   def queryHeaderForInsertRecords: String = {
@@ -59,15 +61,22 @@ trait TopicTickerTable extends TopicTickerLogger{
       "(" + ("?," * nonIdCols.length).dropRight(1) + ")"
   }
 
-  def insertRecords(): Unit
+  def insertRecords(forceOpenConnection: Boolean = false): Unit
 
   def updateTableWithFreshData(): Unit
 
   def dropTableStatement: String = s"DROP TABLE ${tableName.toUpperCase()}"
   def dropTable(): Unit = {
+    ensureConnectionIsOpen()
     val stmt = connection.createStatement()
     stmt.execute(dropTableStatement)
     stmt.close()
+  }
+
+  def ensureConnectionIsOpen(): Unit = {
+    if(connection.isClosed) {
+      connection = new PostgresDBConnection().createConnection()
+    }
   }
 
   def closeConnection(): Unit = {

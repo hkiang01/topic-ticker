@@ -39,7 +39,7 @@ class GoogleNewsSpec extends FunSpec with Matchers {
   describe("insert records") {
     googleNews.updateData()
     googleNews.insertRecords()
-    val rs = googleNews.getRecords
+    val rs = googleNews.getRecords(forceOpenConnection = true)
     rs.next()
 
     val googleNewsObj = GoogleNewsObj(

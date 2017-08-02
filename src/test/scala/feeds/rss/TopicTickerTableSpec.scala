@@ -16,7 +16,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       ))
       override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
-      override def insertRecords(): Unit = {}
+      override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 
     val sampleFeed1 = new SampleFeed1
@@ -44,7 +44,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       ))
       override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
-      override def insertRecords(): Unit = {}
+      override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 
     class SampleFeed2 extends TopicTickerTable {
@@ -56,7 +56,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       ))
       override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
-      override def insertRecords(): Unit = {}
+      override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 
     val sampleFeed1 = new SampleFeed1
@@ -91,7 +91,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
       ))
       override val uniqueConstraint: String = ""
       override def updateTableWithFreshData(): Unit = {}
-      override def insertRecords(): Unit = {}
+      override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 
     val sampleFeed1 = new SampleFeed1

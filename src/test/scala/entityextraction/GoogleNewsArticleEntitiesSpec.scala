@@ -47,7 +47,7 @@ class GoogleNewsArticleEntitiesSpec extends FunSpec with Matchers with TopicTick
   describe("insert records") {
     googleNewsArticleEntities.updateBatch(1)
     googleNewsArticleEntities.insertRecords()
-    val rs = googleNewsArticleEntities.getRecords
+    val rs = googleNewsArticleEntities.getRecords(forceOpenConnection = true)
     rs.next()
 
     val googleNewsArticleEntitiesObj = GoogleNewsArticleEntitiesObj(
