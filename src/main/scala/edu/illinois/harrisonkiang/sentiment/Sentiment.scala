@@ -9,7 +9,8 @@ import edu.illinois.harrisonkiang.postgres.PostgresDBConnection
   */
 object Sentiment extends Enumeration {
   type Sentiment = Value
-  val VERY_POSITIVE, POSITIVE,NEUTRAL, NEGATIVE, VERY_NEGATIVE = Value
+  // MUST BE IN ALPHABETICAL ORDER
+  val NEGATIVE, NEUTRAL, POSITIVE, VERY_NEGATIVE, VERY_POSITIVE = Value
 
   def toSentiment(sentiment: Int): Sentiment = sentiment match {
     case 0 => Sentiment.VERY_NEGATIVE

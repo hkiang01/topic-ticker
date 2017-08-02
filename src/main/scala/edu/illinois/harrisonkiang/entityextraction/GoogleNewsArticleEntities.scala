@@ -1,6 +1,6 @@
 package edu.illinois.harrisonkiang.entityextraction
 
-import java.sql.ResultSet
+import java.sql.{ResultSet, Statement}
 import java.util.UUID
 
 import edu.illinois.harrisonkiang.util.{Schema, SchemaCol, TopicTickerLogger, TopicTickerTable}
@@ -31,9 +31,8 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
   override def insertRecords(forceOpenConnection: Boolean = false): Unit = {
     ensureTableExists()
 
-    val nonConflictingInsertQuery = queryHeaderForInsertRecords.concat(
-      " ON CONFLICT DO NOTHING"
-    )
+    val nonConflictingInsertQuery = queryHeaderForInsertRecords
+//      .concat(" ON CONFLICT DO NOTHING")
 
     connection.setAutoCommit(false)
 
@@ -45,6 +44,8 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
         ensureConnectionIsOpen()
         val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
+        var batchExecutionGoogleNewsIds: ArrayBuffer[UUID] = ArrayBuffer()
+
         entitiesAndTypes.foreach(entityAndType => {
           val entity = entityAndType._1
           val entityType = entityAndType._2
@@ -53,9 +54,27 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
           stmt.setString(2, entity)
           stmt.setString(3, entityType)
           stmt.addBatch()
+          batchExecutionGoogleNewsIds += datum.googlenews_id
         })
         logger.info(stmt.toString)
-        stmt.executeBatch()
+
+        // execute batch
+        logger.info("executing batch")
+        val batchExecutionResults: Array[Int] = stmt.executeBatch()
+        logger.info("batchExecutionResults: " + batchExecutionResults.mkString(" "))
+        batchExecutionResults.zipWithIndex.foreach(batchExecutionResult => {
+          if(batchExecutionResult._1 == Statement.EXECUTE_FAILED) {
+            logger.error(s"Execution failed: failed to insert GoogleNewsSentenceAndSentimentObj " +
+              s"for googlenews_id ${batchExecutionGoogleNewsIds(batchExecutionResult._2)}")
+          }
+          else if(batchExecutionResult._1 == 0) {
+            logger.warn(s"No records updated: failed to insert GoogleNewsSentenceAndSentimentObj " +
+              s"for googlenews_id ${batchExecutionGoogleNewsIds(batchExecutionResult._2)}")
+          } else {
+            logger.info("update executed successfully")
+          }
+        })
+
         if(!forceOpenConnection) {
           stmt.close()
         }

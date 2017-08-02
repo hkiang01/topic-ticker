@@ -2,19 +2,21 @@ package edu.illinois.harrisonkiang.entityextraction
 
 import java.util.Properties
 
+import edu.illinois.harrisonkiang.util.TopicTickerLogger
 import edu.stanford.nlp.ling.CoreAnnotations.{NamedEntityTagAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-trait EntityExtractor {
+trait EntityExtractor extends TopicTickerLogger{
 
   val props: Properties = new Properties()
   props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner")
   val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
 
   def extractEntities(text: String): Array[(String, String)] = {
+    logger.info(s"extracting entities from ${text.take(100)}")
 
     val document: Annotation = new Annotation(text)
     pipeline.annotate(document)
@@ -57,7 +59,9 @@ trait EntityExtractor {
       })
     })
 
-    textResult.filter(_._2 != "O").toArray
+    val results = textResult.filter(_._2 != "O").toArray
+    logger.info("entities extracted")
+    results
   }
 
 }

@@ -1,3 +1,7 @@
+import edu.illinois.harrisonkiang.sentiment.Sentiment
+import edu.illinois.harrisonkiang.sentiment.Sentiment.Sentiment
+
+import scala.collection.mutable.ArrayBuffer
 //import scala.concurrent._
 //import scala.concurrent.duration._
 //import ExecutionContext.Implicits.global
@@ -22,4 +26,4 @@
 //}
 //
 
-Array.empty.nonEmpty
+Sentiment.VERY_NEGATIVE.toString.asInstanceOf[Sentiment]
