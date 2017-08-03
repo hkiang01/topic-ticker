@@ -25,7 +25,9 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
   var data: ArrayBuffer[GoogleNewsArticleIdsAndSentences] = ArrayBuffer()
 
   override def createTableStatement: String = super.createTableStatement
+
   override def queryHeaderForInsertRecords: String = super.queryHeaderForInsertRecords
+
   override def dropTableStatement: String = super.dropTableStatement
 
   override def insertRecords(forceOpenConnection: Boolean = false): Unit = {
@@ -35,31 +37,44 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
       " ON CONFLICT DO NOTHING"
     )
 
-    connection.setAutoCommit(false)
-
     data.foreach(datum => {
       val googleNewsId = datum.googlenews_id
+      logger.info(s"exceuting insertRecords into $tableName for googleNewsId: $googleNewsId...")
 
-      datum.sentences.foreach(sentence => {
-        val entitiesAndTypes = extractEntities(sentence)
-        ensureConnectionIsOpen()
-        val stmt = connection.prepareStatement(nonConflictingInsertQuery)
+      if (datum != null && datum.sentences != null && datum.sentences.length > 0) {
+        datum.sentences.foreach(sentence => {
+          logger.info(s"sentence: $sentence")
+          val entitiesAndTypes = extractEntities(sentence)
+          ensureConnectionIsOpen()
+          val stmt = connection.prepareStatement(nonConflictingInsertQuery)
 
-        entitiesAndTypes.foreach(entityAndType => {
-          val entity = entityAndType._1
-          val entityType = entityAndType._2
+          entitiesAndTypes.foreach(entityAndType => {
+            val entity = entityAndType._1
+            val entityType = entityAndType._2
+            logger.info(s"entity: '$entity\tentityType: $entityType")
 
-          stmt.setObject(1, googleNewsId)
-          stmt.setString(2, entity)
-          stmt.setString(3, entityType)
-          stmt.addBatch()
+            stmt.setObject(1, googleNewsId)
+            stmt.setString(2, entity)
+            stmt.setString(3, entityType)
+            stmt.addBatch()
+          })
+          logger.info(stmt.toString)
+          stmt.executeBatch()
         })
+      } else {
+        logger.warn(s"datum or datum.sentences null or empty, queuing empty sentences for $googleNewsId")
+        val stmt = connection.prepareStatement(nonConflictingInsertQuery)
+        stmt.setObject(1, googleNewsId)
+        stmt.setString(2, null)
+        stmt.setString(3, null)
+        stmt.addBatch()
         logger.info(stmt.toString)
         stmt.executeBatch()
-        if(!forceOpenConnection) {
-          stmt.close()
-        }
-      })
+      }
+      //      if(!forceOpenConnection) {
+      //        connection.close()
+      //      }
+      logger.info(s"executed insertRecords into $tableName for googleNewsId: $googleNewsId")
     })
     data = ArrayBuffer()
   }
@@ -70,8 +85,8 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
     val stmt = connection.createStatement()
     val sql = s"select googlenews_id, sentences from googlenews_sentenceandsentiments " +
       s"where googlenews_id not in (select googlenews_id from $tableName) LIMIT $numRecords"
-    val results =stmt.executeQuery(sql)
-    if(!forceOpenConnection) {
+    val results = stmt.executeQuery(sql)
+    if (!forceOpenConnection) {
       stmt.close()
     }
     results
@@ -82,13 +97,17 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
     ensureTableExists()
     val resultSet = googleNewsIdsAndSentencesWithoutEntities(batchSize, forceOpenConnection = true)
     var result = false
-    while(resultSet.next()) {
+    while (resultSet.next()) {
       result = true
       val googleNewsId = resultSet.getObject("googlenews_id").asInstanceOf[UUID]
+      logger.info(s"batch googleNewsId: $googleNewsId")
       val sentencesRaw = resultSet.getArray("sentences")
-      if(sentencesRaw != null) {
+      if (sentencesRaw != null) {
         val sentences = sentencesRaw.getArray.asInstanceOf[Array[String]]
         data += GoogleNewsArticleIdsAndSentences(googleNewsId, sentences)
+      } else {
+        logger.warn(s"sentences null, queuing empty sentences for $googleNewsId")
+        data += GoogleNewsArticleIdsAndSentences(googleNewsId, null)
       }
       insertRecords()
     }
@@ -97,8 +116,9 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
 
   def updateData(): Unit = {
     var batchesRemaining = true
-    while(batchesRemaining) {
+    while (batchesRemaining) {
       batchesRemaining = updateBatch()
+      insertRecords()
     }
   }
 

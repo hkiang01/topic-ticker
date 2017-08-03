@@ -23,28 +23,35 @@ class GoogleNewsArticleEntitiesSpec extends FunSpec with Matchers with TopicTick
     }
   }
 
-  ignore("get records to be processed") {
-    val resultSet = googleNewsArticleEntities.googleNewsIdsAndSentencesWithoutEntities(1)
+  describe("get records to be processed") {
+    val resultSet = googleNewsArticleEntities.googleNewsIdsAndSentencesWithoutEntities(1, forceOpenConnection = true)
     resultSet.next()
     val googleNewsId = resultSet.getObject("googlenews_id").asInstanceOf[UUID]
-    val sentences = resultSet.getArray("sentences").getArray.asInstanceOf[Array[String]]
+    val sentencesArr = resultSet.getArray("sentences")
+    var sentences: Array[String] = Array()
+    if(sentencesArr != null) {
+      sentences = sentencesArr.getArray.asInstanceOf[Array[String]]
+    }
     val googleNewsArticleIdsAndSentences = GoogleNewsArticleIdsAndSentences(googleNewsId, sentences)
     println(s"googlenews_id: ${googleNewsArticleIdsAndSentences.googlenews_id}")
     println(s"sentences: \n${googleNewsArticleIdsAndSentences.sentences.mkString("\n")}")
     it("") {
       1 should be (1)
     }
+    googleNewsArticleEntities.connection.close()
   }
 
-  ignore("update batch") {
-    googleNewsArticleEntities.updateBatch(1)
+  describe("update batch") {
+    if(googleNewsArticleEntities.updateBatch()) {
+      googleNewsArticleEntities.insertRecords()
+    }
     it("data should be nonempty") {
       1 should be (1)
     }
   }
 
 
-  describe("insert records") {
+  ignore("insert records") {
     googleNewsArticleEntities.updateBatch(1)
     googleNewsArticleEntities.insertRecords()
     val rs = googleNewsArticleEntities.getRecords(forceOpenConnection = true)
