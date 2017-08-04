@@ -31,7 +31,7 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
     }
   }
 
-  describe("update batch and insert records") {
+  ignore("update batch and insert records") {
     googleNewsSentencesAndSentiment.updateBatch()
     googleNewsSentencesAndSentiment.insertRecords(forceOpenConnection = true)
     val rs = googleNewsSentencesAndSentiment.getRecords(forceOpenConnection = true)
@@ -42,6 +42,28 @@ class GoogleNewsTextAndSentimentSpec extends FunSpec with Matchers with TopicTic
         rs.getArray("sentences"),
         rs.getArray("sentiments")
       )
+
+    val sentences = googleNewsSentencesAndSentimentObj.sentences.getArray().asInstanceOf[Array[String]]
+    logger.info(sentences)
+
+    it("an inserted record should be obtainable") {
+      googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentsObj]
+    }
+  }
+
+  describe("get records") {
+    val rs = googleNewsSentencesAndSentiment.getRecords(forceOpenConnection = true)
+    rs.next()
+
+    val googleNewsSentencesAndSentimentObj = GoogleNewsSentencesAndSentimentsObj(
+      rs.getObject("googlenews_id").asInstanceOf[UUID],
+      rs.getArray("sentences"),
+      rs.getArray("sentiments")
+    )
+
+    val sentences = googleNewsSentencesAndSentimentObj.sentences.getArray().asInstanceOf[Array[String]]
+    logger.info(sentences.mkString("\n"))
+
     it("an inserted record should be obtainable") {
       googleNewsSentencesAndSentimentObj shouldBe a [GoogleNewsSentencesAndSentimentsObj]
     }
