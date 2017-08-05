@@ -84,9 +84,9 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
   def updateBatch(batchSize: Int = 1): Boolean = {
     ensureTableExists()
     val resultSet = googleNewsIdsAndLinksWithoutTextAndSentiment(batchSize)
-    var result = false
+    var batchesRemaining = false
     while(resultSet.next()) {
-        result = true
+        batchesRemaining = true
         val googleNewsId = resultSet.getObject[java.util.UUID]("id", classOf[UUID])
         val link = resultSet.getString("link")
         logger.info(s"processing $link")
@@ -109,7 +109,7 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
           insertRecords()
         }
     }
-    result
+    batchesRemaining
   }
 
   def updateData(): Unit = {
@@ -119,9 +119,9 @@ class GoogleNewsSentencesAndSentiments extends TopicTickerTable with TextExtract
     }
   }
 
-  override def updateTableWithFreshData(): Unit = {
+  override def updateTableWithFreshData(forceOpenConnection: Boolean = false): Unit = {
     updateData()
-    insertRecords()
+    insertRecords(forceOpenConnection)
   }
 
 }

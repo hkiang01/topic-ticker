@@ -15,7 +15,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
         SchemaCol("col1", "type1")
       ))
       override val uniqueConstraint: String = ""
-      override def updateTableWithFreshData(): Unit = {}
+      override def updateTableWithFreshData(forceOpenConnection: Boolean): Unit = {}
       override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 
@@ -43,7 +43,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
         SchemaCol("col1", "type1")
       ))
       override val uniqueConstraint: String = ""
-      override def updateTableWithFreshData(): Unit = {}
+      override def updateTableWithFreshData(forceOpenConnection: Boolean): Unit = {}
       override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 
@@ -55,7 +55,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
         SchemaCol("col2", "type2")
       ))
       override val uniqueConstraint: String = ""
-      override def updateTableWithFreshData(): Unit = {}
+      override def updateTableWithFreshData(forceOpenConnection: Boolean): Unit = {}
       override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 
@@ -90,7 +90,7 @@ class TopicTickerTableSpec extends FunSpec with Matchers {
         SchemaCol("col1", "type1")
       ))
       override val uniqueConstraint: String = ""
-      override def updateTableWithFreshData(): Unit = {}
+      override def updateTableWithFreshData(forceOpenConnection: Boolean): Unit = {}
       override def insertRecords(forceOpenConnection: Boolean): Unit = {}
     }
 

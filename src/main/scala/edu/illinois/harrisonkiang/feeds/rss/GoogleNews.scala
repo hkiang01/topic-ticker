@@ -104,7 +104,7 @@ class GoogleNews extends TopicTickerTable with TopicTickerLogger {
     })
   }
 
-  override def updateTableWithFreshData(): Unit = {
-    updateData()
+  override def updateTableWithFreshData(forceOpenConnection: Boolean = false): Unit = {
+    updateData(forceOpenConnection)
   }
 }

@@ -122,9 +122,12 @@ class GoogleNewsArticleEntities extends TopicTickerTable with EntityExtractor wi
     }
   }
 
-  override def updateTableWithFreshData(): Unit = {
+  override def updateTableWithFreshData(forceOpenConnection: Boolean = false): Unit = {
     updateData()
     insertRecords()
+    if(forceOpenConnection) {
+      connection.close()
+    }
   }
 
 }

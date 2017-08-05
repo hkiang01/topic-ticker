@@ -43,10 +43,10 @@ trait TopicTickerTable extends TopicTickerLogger{
     }
   }
 
-  def getRecords(forceOpenConnection: Boolean = false): java.sql.ResultSet = {
+  def getRecords(forceOpenConnection: Boolean = false, limit: Int = Integer.MAX_VALUE): java.sql.ResultSet = {
     ensureConnectionIsOpen()
     val stmt = connection.createStatement()
-    val sql = s"SELECT * FROM $tableName"
+    val sql = s"SELECT * FROM $tableName LIMIT $limit"
     val results = stmt.executeQuery(sql)
     if(!forceOpenConnection) {
       stmt.close()
@@ -63,7 +63,7 @@ trait TopicTickerTable extends TopicTickerLogger{
 
   def insertRecords(forceOpenConnection: Boolean = false): Unit
 
-  def updateTableWithFreshData(): Unit
+  def updateTableWithFreshData(forceOpenConnection: Boolean = false): Unit
 
   def dropTableStatement: String = s"DROP TABLE ${tableName.toUpperCase()}"
   def dropTable(): Unit = {
